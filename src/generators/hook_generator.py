@@ -13,7 +13,7 @@ import openai
 from typing import List
 from pydantic import BaseModel, Field, ValidationError
 from enum import Enum
-from ..marketing_config import HookStyle
+from src.marketing_config import HookStyle
 
 # Charger les variables d'environnement
 load_dotenv()
