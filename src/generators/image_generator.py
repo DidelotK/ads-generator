@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 import openai
 import requests
 from enum import Enum
-from ..marketing_config import ImageStyle
 
 # Charger les variables d'environnement
 load_dotenv()
