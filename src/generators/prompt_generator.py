@@ -141,13 +141,13 @@ class PromptGenerator:
         style_prompts = PromptStyle.get_style_prompts()
         style_description = style_prompts.get(style, style_prompts[PromptStyle.REALISTIC.value])
 
-        base_prompt = """Génère une image pour une publicité facebook ads qui a les informations suivantes :
+        base_prompt = f"""Génère une image pour une publicité facebook ads qui a les informations suivantes :
 
-Titre : {hook}
-Description : {description}
+Accroche de l'ads : {hook}
+Description de l'ads : {description}
 
 Sur l'image il pourrait être intéressant de mettre en avant des éléments comme :
-{elements}
+<Elements à définir>
 
 L'image générée :
 - Style : {style_description}
@@ -161,6 +161,8 @@ L'image générée :
 - Détails nets et précis
 - Qualité photographique professionnelle
 
+Autres consignes :
+<Autres consignes à définir>
 """
 
         print(f"🎨 Génération de {num_prompts} prompts d'images pour: {hook}")
@@ -178,6 +180,10 @@ Génère {num_prompts} prompts qui seront utilisés par un autre llm pour créer
 <prompt>
 {base_prompt}
 </prompt>
+
+Les éléments à définir sont :
+- <Elements à définir>
+- <Autres consignes à définir>
 
 IMPORTANT : Chaque prompt doit être un texte complet et détaillé, prêt à être utilisé directement pour générer une image. Retourne les prompts numérotés (1, 2, 3, etc.). Chaque prompt doit être autonome et contenir toutes les informations nécessaires.
                     """}
