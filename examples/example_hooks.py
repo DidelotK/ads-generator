@@ -4,6 +4,7 @@ Exemples d'utilisation du générateur d'accroches
 """
 
 from src.generators.hook_generator import HookGenerator
+from src.marketing_config import HookStyle
 
 def main():
     """Exemples d'utilisation"""
@@ -32,7 +33,7 @@ def main():
     hooks = generator.generate_hooks(
         subject="Application mobile de fitness",
         num_hooks=3,
-        style="engaging",
+        style=HookStyle.ENGAGING.value,
         model="gpt-3.5-turbo"
     )
     
@@ -44,7 +45,7 @@ def main():
     # hooks = generator.generate_hooks(
     #     subject="Solution de gestion de projet pour entreprises",
     #     num_hooks=2,
-    #     style="professional",
+    #     style=HookStyle.PROFESSIONAL.value,
     #     model="gpt-4"
     # )
     
@@ -56,7 +57,7 @@ def main():
     # hooks = generator.generate_hooks(
     #     subject="Restaurant gastronomique fusion asiatique",
     #     num_hooks=3,
-    #     style="creative",
+    #     style=HookStyle.CREATIVE.value,
     #     model="gpt-3.5-turbo"
     # )
     
@@ -67,7 +68,7 @@ def main():
     # Note: Décommentez les lignes suivantes pour tester
     # results = generator.generate_multiple_styles(
     #     subject="Formation en ligne de marketing digital",
-    #     styles=["engaging", "professional", "emotional"],
+    #     styles=[HookStyle.ENGAGING.value, HookStyle.PROFESSIONAL.value, HookStyle.EMOTIONAL.value],
     #     num_hooks=2,
     #     model="gpt-3.5-turbo"
     # )
@@ -77,7 +78,7 @@ def main():
     print("💡 Utilisez --list-models pour voir tous les modèles disponibles:")
     print("   python hook_generator.py --list-models")
     print("\n💡 Exemple d'utilisation en ligne de commande:")
-    print("   python hook_generator.py --subject 'Application mobile' --num-hooks 3 --style engaging")
+    print(f"   python hook_generator.py --subject 'Application mobile' --num-hooks 3 --style {HookStyle.ENGAGING.value}")
 
 if __name__ == "__main__":
     main() 

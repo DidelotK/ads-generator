@@ -137,13 +137,13 @@ def generate_marketing_resources(num_resources=5):
         print(f"   Style: {resource['style']}")
         print(f"   Description: {resource['description']}")
         if 'images' in resource and resource['images']:
-            print(f"   Images: {', '.join(resource['images'])}")
+            print(f"   Images: {', '.join(str(img) for img in resource['images'])}")
         else:
             print(f"   Images: Aucune générée")
     
     print(f"\n✅ Génération terminée!")
-    print(f"💾 Hooks sauvegardés dans: generated_hooks/")
-    print(f"🖼️  Images sauvegardées dans: generated_images/")
+    print(f"💾 Hooks sauvegardés dans: generated/hooks/")
+    print(f"🖼️  Images sauvegardées dans: generated/images/")
     print(f"\n💡 Ces ressources sont prêtes pour vos campagnes publicitaires!")
     print(f"💡 Utilisez-les dans vos ads pour maximiser les clics vers vos landing pages.")
     

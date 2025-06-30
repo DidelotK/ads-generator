@@ -4,6 +4,8 @@ Configuration pour les hooks marketing
 Personnalisez facilement les sujets et styles pour vos campagnes publicitaires
 """
 
+from enum import Enum
+
 # Sujets marketing très engageants (style "ce que l'état ne vous dit pas")
 MARKETING_SUBJECTS = [
     "Production d'électricité solaire à domicile",
@@ -17,6 +19,47 @@ MARKETING_SUBJECTS = [
     "Technologie bannie par les grandes entreprises",
     "Le secret des millionnaires pour l'énergie gratuite"
 ]
+
+class HookStyle(Enum):
+    """Énumération des styles d'accroches disponibles"""
+    URGENT = "urgent"
+    ENGAGING = "engaging"
+    PROFESSIONAL = "professional"
+    CREATIVE = "creative"
+    EMOTIONAL = "emotional"
+    HUMOROUS = "humorous"
+    CURIOSITY = "curiosity"
+    BENEFIT = "benefit"
+    STORY = "story"
+    QUESTION = "question"
+    CONSPIRATIONNISTE = "conspirationniste"
+    
+    @classmethod
+    def get_style_prompts(cls):
+        """Retourne le dictionnaire des descriptions de styles"""
+        return {
+            cls.URGENT.value: "qui créent un sentiment d'urgence et d'action immédiate",
+            cls.ENGAGING.value: "accrocheuses et engageantes qui captent immédiatement l'attention",
+            cls.PROFESSIONAL.value: "professionnelles et sérieuses, adaptées à un public business",
+            cls.CREATIVE.value: "créatives et originales, avec un angle unique et surprenant",
+            cls.EMOTIONAL.value: "émotionnelles et touchantes, qui suscitent des sentiments",
+            cls.HUMOROUS.value: "humoristiques et amusantes, avec une touche d'humour",
+            cls.CURIOSITY.value: "qui éveillent la curiosité et poussent à en savoir plus",
+            cls.BENEFIT.value: "qui mettent l'accent sur les bénéfices et avantages",
+            cls.STORY.value: "narratives, qui racontent une histoire ou utilisent une anecdote",
+            cls.QUESTION.value: "qui posent des questions pertinentes et provocantes",
+            cls.CONSPIRATIONNISTE.value: "qui suggèrent des vérités cachées et des secrets révélés, avec un ton mystérieux et intriguant"
+        }
+    
+    @classmethod
+    def get_default_styles(cls):
+        """Retourne la liste des styles par défaut pour generate_multiple_styles"""
+        return [cls.ENGAGING.value, cls.PROFESSIONAL.value, cls.CREATIVE.value, cls.EMOTIONAL.value]
+    
+    @classmethod
+    def is_valid_style(cls, style):
+        """Vérifie si un style est valide"""
+        return style in [s.value for s in cls]
 
 # Styles marketing très engageants
 MARKETING_STYLES = [

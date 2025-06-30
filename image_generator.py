@@ -1,30 +1,29 @@
 #!/usr/bin/env python3
 """
-Script pour générer des images avec l'API OpenAI (DALL-E)
+Script pour générer des images avec l'API OpenAI (GPT-Image-1, DALL-E)
 """
 
 import sys
 import argparse
 from src.generators.image_generator import ImageGenerator
+from src.marketing_config import ImageStyle
 
 def main():
     """Fonction principale"""
     parser = argparse.ArgumentParser(description="Générateur d'images avec l'API OpenAI")
-    parser.add_argument("--subject", "-t", default="chat", 
-                       help="Type de sujet à générer (chat, chien, paysage, portrait, etc.)")
     parser.add_argument("--prompt", "-p", help="Description personnalisée de l'image")
-    parser.add_argument("--style", "-s", default="realistic", 
-                       choices=["realistic", "cartoon", "artistic", "anime", "watercolor", "sketch", "cute", "majestic", "minimalist", "vintage"],
+    parser.add_argument("--style", "-s", default=ImageStyle.REALISTIC.value, 
+                       choices=[s.value for s in ImageStyle],
                        help="Style de l'image")
     parser.add_argument("--size", default="1024x1024",
-                       choices=["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"],
+                       choices=["256x256", "512x512", "1024x1024", "1024x1536", "1536x1024", "1792x1024", "1024x1792", "auto"],
                        help="Taille de l'image")
     parser.add_argument("--quality", default="standard",
                        choices=["standard", "hd"],
                        help="Qualité de l'image")
-    parser.add_argument("--model", "-m", default="dall-e-3",
-                       choices=["dall-e-3", "dall-e-2"],
-                       help="Modèle à utiliser")
+    parser.add_argument("--model", "-m", default="gpt-image-1",
+                       choices=["gpt-image-1", "dall-e-3", "dall-e-2"],
+                       help="Modèle à utiliser (gpt-image-1 pour la meilleure qualité)")
     parser.add_argument("--multiple", action="store_true",
                        help="Générer dans plusieurs styles")
     parser.add_argument("--api-key", help="Clé API OpenAI (optionnel si dans .env)")
@@ -45,6 +44,7 @@ def main():
             for model_id, info in models.items():
                 print(f"\n📋 {info['name']} ({model_id})")
                 print(f"   Description: {info['description']}")
+                print(f"   Type: {info['type']}")
                 print(f"   Tailles supportées: {', '.join(info['supported_sizes'])}")
                 print(f"   Qualités supportées: {', '.join(info['supported_qualities'])}")
                 print("   Tarifs:")
@@ -55,9 +55,8 @@ def main():
         
         if args.multiple:
             # Générer dans plusieurs styles
-            styles = ["realistic", "cartoon", "artistic", "cute"]
+            styles = ImageStyle.get_default_styles()
             results = generator.generate_multiple_styles(
-                args.subject, 
                 args.prompt, 
                 styles, 
                 args.model, 
@@ -71,7 +70,6 @@ def main():
         else:
             # Générer une seule image
             filename = generator.generate_image(
-                subject_type=args.subject,
                 prompt=args.prompt,
                 style=args.style,
                 size=args.size,

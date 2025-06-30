@@ -4,6 +4,7 @@ Exemples d'utilisation du générateur d'images avec différents modèles
 """
 
 from src.generators.image_generator import ImageGenerator
+from src.marketing_config import ImageStyle
 
 def main():
     """Exemples d'utilisation"""
@@ -24,18 +25,18 @@ def main():
     
     print("\n" + "=" * 60)
     
-    # Exemple 1: Génération avec DALL-E 3 (modèle par défaut)
-    print("\n2️⃣  Exemple avec DALL-E 3 (haute qualité):")
+    # Exemple 1: Génération avec GPT IMAGE 1 (modèle par défaut)
+    print("\n2️⃣  Exemple avec GPT IMAGE 1 (haute qualité):")
     print("   Génération d'un chat réaliste en HD...")
     
     # Note: Décommentez les lignes suivantes pour tester
     # filename = generator.generate_image(
     #     subject_type="chat",
     #     prompt="Un chat persan élégant assis sur un coussin de velours",
-    #     style="realistic",
+    #     style=ImageStyle.REALISTIC.value,
     #     size="1024x1024",
     #     quality="hd",
-    #     model="dall-e-3"
+    #     model="gpt-image-1"
     # )
     
     # Exemple 2: Génération avec DALL-E 2 (moins cher)
@@ -46,13 +47,13 @@ def main():
     # filename = generator.generate_image(
     #     subject_type="chat",
     #     prompt="Un chaton mignon jouant avec une pelote de laine",
-    #     style="cartoon",
+    #     style=ImageStyle.CARTOON.value,
     #     size="512x512",
     #     quality="standard",
     #     model="dall-e-2"
     # )
     
-    # Exemple 3: Génération multiple avec DALL-E 3
+    # Exemple 3: Génération multiple avec GPT IMAGE 1
     print("\n4️⃣  Exemple de génération multiple:")
     print("   Génération de 4 styles différents...")
     
@@ -60,8 +61,8 @@ def main():
     # results = generator.generate_multiple_styles(
     #     subject_type="chat",
     #     prompt="Un chat élégant dans un salon luxueux",
-    #     styles=["realistic", "cartoon", "artistic", "cute"],
-    #     model="dall-e-3",
+    #     styles=[ImageStyle.REALISTIC.value, ImageStyle.CARTOON.value, ImageStyle.ARTISTIC.value, ImageStyle.CUTE.value],
+    #     model="gpt-image-1",
     #     size="1024x1024",
     #     quality="standard"
     # )

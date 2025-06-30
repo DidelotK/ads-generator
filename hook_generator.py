@@ -6,6 +6,7 @@ Script pour générer des accroches avec l'API OpenAI (ChatGPT)
 import sys
 import argparse
 from src.generators.hook_generator import HookGenerator
+from src.marketing_config import HookStyle
 
 def main():
     """Fonction principale"""
@@ -14,8 +15,8 @@ def main():
                        help="Sujet pour lequel générer les accroches")
     parser.add_argument("--num-hooks", "-n", type=int, default=5,
                        help="Nombre d'accroches à générer (défaut: 5)")
-    parser.add_argument("--style", default="engaging",
-                       choices=["engaging", "professional", "creative", "emotional", "humorous", "urgent", "curiosity", "benefit", "story", "question"],
+    parser.add_argument("--style", default=HookStyle.ENGAGING.value,
+                       choices=[s.value for s in HookStyle],
                        help="Style des accroches")
     parser.add_argument("--model", "-m", default="gpt-3.5-turbo",
                        choices=["gpt-4", "gpt-3.5-turbo"],
@@ -55,7 +56,7 @@ def main():
         
         if args.multiple_styles:
             # Générer dans plusieurs styles
-            styles = ["engaging", "professional", "creative", "emotional"]
+            styles = HookStyle.get_default_styles()
             results = generator.generate_multiple_styles(
                 args.subject, 
                 styles, 

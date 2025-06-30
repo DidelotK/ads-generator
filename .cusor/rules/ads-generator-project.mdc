@@ -1,0 +1,211 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Règles et Conventions du Projet ads-generator
+
+## 📁 Structure du Repository
+
+```
+ads-generator/
+├── README.md                     # Documentation principale avec liens vers docs/
+├── docs/                         # Documentation détaillée
+│   ├── installation.md           # Guide d'installation complet
+│   ├── hook_generator.md         # Documentation du générateur d'accroches
+│   └── [autres_docs].md          # Autres documentations spécifiques
+├── src/                          # Code source principal
+│   ├── __init__.py
+│   └── generators/               # Modules de génération
+│       ├── __init__.py
+│       ├── image_generator.py    # Générateur d'images
+│       └── hook_generator.py     # Générateur d'accroches
+├── examples/                     # Exemples d'utilisation
+│   ├── __init__.py
+│   ├── example_usage.py          # Exemple général
+│   ├── example_gpt_image_usage.py # Exemple spécifique GPT-Image-1
+│   ├── example_hooks.py          # Exemple hook generator
+│   └── example_marketing_hooks.py # Exemple marketing hooks
+├── tests/                        # Tests unitaires
+│   ├── test_hook_generator.py
+│   ├── test_improvements.py
+│   └── test_marketing_resources.py
+├── scripts/                      # Scripts utilitaires
+│   └── setup.sh                  # Script d'installation automatique
+├── prompts/                      # Prompts et templates
+│   └── energy.md                 # Prompts spécifiques
+├── generated/                    # Fichiers générés (créé automatiquement)
+│   ├── hooks/                    # Accroches générées
+│   └── images/                   # Images générées
+├── image_generator.py            # Script principal pour les images
+├── hook_generator.py             # Script principal pour les accroches
+├── pyproject.toml                # Configuration uv
+├── uv.lock                       # Verrouillage des dépendances
+└── .env.example                  # Exemple de configuration
+```
+
+## 🎯 Conventions de Nommage
+
+### Fichiers et Dossiers
+- **Scripts principaux** : `nom_generator.py` (ex: `image_generator.py`, `hook_generator.py`)
+- **Modules** : `nom_generator.py` dans `src/generators/`
+- **Documentation** : `nom_generator.md` dans `docs/`
+- **Exemples** : `example_nom.py` dans `examples/`
+- **Tests** : `test_nom.py` dans `tests/`
+
+### Classes et Fonctions
+- **Classes** : `PascalCase` (ex: `ImageGenerator`, `HookGenerator`)
+- **Fonctions** : `snake_case` (ex: `generate_images`, `generate_hooks`)
+- **Variables** : `snake_case` (ex: `api_key`, `num_hooks`)
+
+## 📝 Conventions de Documentation
+
+### README Principal
+- **Contenu** : Vue d'ensemble, liens vers docs/, exemples rapides
+- **Structure** : Installation → Modèles → Utilisation → Exemples
+- **Liens** : Toujours pointer vers `docs/` pour les détails
+
+### Documentation Spécifique (docs/)
+- **Nommage** : `nom_generator.md` (ex: `hook_generator.md`)
+- **Structure** : Installation → Modèles → Utilisation → Styles → Exemples → Dépannage
+- **Exemples** : Commandes complètes avec `uv run python`
+
+### Commentaires de Code
+- **Docstrings** : Toujours en français
+- **Format** : Google style ou standard Python
+- **Exemples** : Inclure des exemples d'utilisation
+
+## 🔧 Conventions Techniques
+
+### Gestion des Dépendances
+- **Package Manager** : `uv` (pas pip)
+- **Installation** : `uv sync`
+- **Exécution** : `uv run python script.py`
+- **Ajout** : `uv add package-name`
+
+### Configuration
+- **Variables d'environnement** : Fichier `.env` à la racine
+- **Clé API** : `OPENAI_API_KEY=sk-...`
+- **Exemple** : `.env.example` avec valeurs factices
+
+### Structure des Classes
+```python
+class NomGenerator:
+    def __init__(self, api_key=None):
+        """Initialise le générateur"""
+        self.api_key = api_key or os.getenv('OPENAI_API_KEY')
+        self.client = openai.OpenAI(api_key=self.api_key)
+        self.output_dir = Path("generated") / "nom"
+    
+    def get_available_models(self):
+        """Retourne la liste des modèles disponibles"""
+        pass
+    
+    def generate_nom(self, **kwargs):
+        """Génère le contenu principal"""
+        pass
+```
+
+## 🎨 Conventions de Style
+
+### Interface Utilisateur
+- **Emojis** : Utiliser pour les sections principales (🚀, 🤖, 📖, 🎨)
+- **Formatage** : Markdown avec tables pour les options
+- **Couleurs** : Utiliser des emojis colorés pour la hiérarchie
+
+### Messages de Sortie
+- **Succès** : ✅ ou 🎉
+- **Erreur** : ❌ ou ⚠️
+- **Info** : ℹ️ ou 💡
+- **Progression** : 🔄 ou ⏱️
+
+## 📋 Règles de Développement
+
+### Nouveaux Générateurs
+1. **Script principal** : `nom_generator.py` à la racine
+2. **Module** : `src/generators/nom_generator.py`
+3. **Documentation** : `docs/nom_generator.md`
+4. **Exemple** : `examples/example_nom.py`
+5. **Tests** : `tests/test_nom_generator.py`
+
+### Ajout de Fonctionnalités
+1. **Documentation** : Toujours mettre à jour la doc correspondante
+2. **Exemples** : Ajouter des exemples d'utilisation
+3. **Tests** : Créer des tests pour les nouvelles fonctionnalités
+4. **README** : Mettre à jour si nécessaire
+
+### Gestion des Erreurs
+- **Messages** : Toujours en français
+- **Codes d'erreur** : Utiliser `sys.exit(1)` pour les erreurs fatales
+- **Validation** : Valider les entrées avec des messages clairs
+
+## 🌍 Langue et Localisation
+
+### Langue Principale
+- **Documentation** : Français
+- **Messages** : Français
+- **Commentaires** : Français
+- **Variables** : Anglais (conventions Python)
+
+### Support Multilingue
+- **Génération** : Support de toutes les langues via paramètre `--language`
+- **Interface** : Français par défaut, anglais optionnel
+
+## 🔒 Sécurité
+
+### Clés API
+- **Stockage** : Uniquement dans `.env` (jamais en dur dans le code)
+- **Validation** : Vérifier la présence de la clé au démarrage
+- **Exemple** : `.env.example` avec `sk-your-api-key-here`
+
+### Fichiers Sensibles
+- **Gitignore** : `.env`, `generated/`, `__pycache__/`
+- **Partage** : Jamais de clés API dans les commits
+
+## 🚀 Déploiement et Distribution
+
+### Scripts d'Installation
+- **Automatique** : `./scripts/setup.sh`
+- **Manuel** : Instructions dans `docs/installation.md`
+- **Vérification** : Tests de fonctionnement après installation
+
+### Configuration
+- **Environnement** : `uv` pour la gestion des dépendances
+- **Variables** : `.env` pour la configuration
+- **Cache** : `generated/` pour les fichiers temporaires
+
+## 🎯 Règles Spécifiques au Projet
+
+### Générateurs OpenAI
+- **Modèles par défaut** : GPT-Image-1 pour images, GPT-3.5 Turbo pour accroches
+- **Function calling** : Utiliser pour les réponses structurées
+- **Parsing Pydantic** : Pour la validation des réponses API
+- **Gestion d'erreurs** : Fallback en cas d'échec du parsing
+
+### Structure des Prompts
+- **Langue** : Français par défaut
+- **Style** : Professionnel et engageant
+- **Format** : JSON structuré quand possible
+- **Validation** : Vérifier la cohérence des réponses
+
+### Tests et Qualité
+- **Tests unitaires** : Pour tous les générateurs
+- **Tests d'intégration** : Pour les appels API
+- **Mocking** : Pour les tests sans coût API
+- **Coverage** : Minimum 80% de couverture
+
+## ⚠️ Interdictions Strictes
+
+- ❌ **Jamais de clés API en dur** dans le code
+- ❌ **Jamais de secrets** dans les commits
+- ❌ **Jamais de code dupliqué** sans refactoring
+- ❌ **Jamais de documentation** en anglais (sauf variables)
+- ❌ **Jamais de tests** sans mocking des APIs
+
+## ✅ Obligations
+
+- ✅ **Toujours** créer la documentation correspondante
+- ✅ **Toujours** ajouter des exemples d'utilisation
+- ✅ **Toujours** gérer les erreurs avec des messages clairs
+- ✅ **Toujours** utiliser `uv` pour la gestion des dépendances
+- ✅ **Toujours** suivre les conventions de nommage

@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 import openai
 from typing import List
 from pydantic import BaseModel, Field, ValidationError
+from enum import Enum
+from ..marketing_config import HookStyle
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -31,8 +33,8 @@ class HookGenerator:
             raise ValueError("Clé API OpenAI requise. Définissez OPENAI_API_KEY dans .env ou passez-la en paramètre.")
         
         self.client = openai.OpenAI(api_key=self.api_key)
-        self.output_dir = Path("generated_hooks")
-        self.output_dir.mkdir(exist_ok=True)
+        self.output_dir = Path("generated") / "hooks"
+        self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # Configuration des modèles et leurs tarifs (en USD par 1K tokens)
         self.models = {
@@ -69,6 +71,17 @@ class HookGenerator:
         """Retourne les informations d'un modèle spécifique"""
         return self.models.get(model_id)
     
+    def get_available_styles(self):
+        """Retourne la liste des styles disponibles avec leurs descriptions"""
+        style_prompts = HookStyle.get_style_prompts()
+        return {
+            style: {
+                "name": style,
+                "description": description
+            }
+            for style, description in style_prompts.items()
+        }
+    
     def generate_hooks(self, subject, num_hooks=5, style="engaging", model="gpt-3.5-turbo", language="français"):
         """
         Génère des accroches pour un sujet donné (avec parsing Pydantic et function calling)
@@ -77,20 +90,15 @@ class HookGenerator:
         if model not in self.models:
             print(f"⚠️  Modèle '{model}' non supporté. Utilisation du modèle par défaut: {self.default_model}")
             model = self.default_model
+        
+        # Valider le style
+        if not HookStyle.is_valid_style(style):
+            print(f"⚠️  Style '{style}' non supporté. Utilisation du style par défaut: {HookStyle.ENGAGING.value}")
+            style = HookStyle.ENGAGING.value
+            
         model_info = self.models[model]
-        style_prompts = {
-            "engaging": "accrocheuses et engageantes qui captent immédiatement l'attention",
-            "professional": "professionnelles et sérieuses, adaptées à un public business",
-            "creative": "créatives et originales, avec un angle unique et surprenant",
-            "emotional": "émotionnelles et touchantes, qui suscitent des sentiments",
-            "humorous": "humoristiques et amusantes, avec une touche d'humour",
-            "urgent": "qui créent un sentiment d'urgence et d'action immédiate",
-            "curiosity": "qui éveillent la curiosité et poussent à en savoir plus",
-            "benefit": "qui mettent l'accent sur les bénéfices et avantages",
-            "story": "narratives, qui racontent une histoire ou utilisent une anecdote",
-            "question": "qui posent des questions pertinentes et provocantes"
-        }
-        style_description = style_prompts.get(style, style_prompts["engaging"])
+        style_prompts = HookStyle.get_style_prompts()
+        style_description = style_prompts.get(style, style_prompts[HookStyle.ENGAGING.value])
         
         # Définition de la fonction pour le function calling
         function_def = {
@@ -389,7 +397,7 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après."""
     def generate_multiple_styles(self, subject, styles=None, num_hooks=3, model="gpt-3.5-turbo"):
         """Génère des accroches dans plusieurs styles"""
         if styles is None:
-            styles = ["engaging", "professional", "creative", "emotional"]
+            styles = HookStyle.get_default_styles()
         
         total_start_time = time.time()
         total_cost = 0.0
@@ -421,21 +429,15 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après."""
         if model not in self.models:
             print(f"⚠️  Modèle '{model}' non supporté. Utilisation du modèle par défaut: {self.default_model}")
             model = self.default_model
-        model_info = self.models[model]
         
-        style_prompts = {
-            "engaging": "accrocheuses et engageantes qui captent immédiatement l'attention",
-            "professional": "professionnelles et sérieuses, adaptées à un public business",
-            "creative": "créatives et originales, avec un angle unique et surprenant",
-            "emotional": "émotionnelles et touchantes, qui suscitent des sentiments",
-            "humorous": "humoristiques et amusantes, avec une touche d'humour",
-            "urgent": "qui créent un sentiment d'urgence et d'action immédiate",
-            "curiosity": "qui éveillent la curiosité et poussent à en savoir plus",
-            "benefit": "qui mettent l'accent sur les bénéfices et avantages",
-            "story": "narratives, qui racontent une histoire ou utilisent une anecdote",
-            "question": "qui posent des questions pertinentes et provocantes"
-        }
-        style_description = style_prompts.get(style, style_prompts["engaging"])
+        # Valider le style
+        if not HookStyle.is_valid_style(style):
+            print(f"⚠️  Style '{style}' non supporté. Utilisation du style par défaut: {HookStyle.ENGAGING.value}")
+            style = HookStyle.ENGAGING.value
+            
+        model_info = self.models[model]
+        style_prompts = HookStyle.get_style_prompts()
+        style_description = style_prompts.get(style, style_prompts[HookStyle.ENGAGING.value])
         
         prompt = f"""Tu es un expert en marketing et en création d'accroches percutantes.
 

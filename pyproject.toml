@@ -1,7 +1,7 @@
 [project]
 name = "ads-generator"
 version = "0.1.0"
-description = "Générateur d'images de chat avec DALL-E"
+description = "Générateur d'images de chat avec DALL-E et GPT-Image-1"
 authors = [
     {name = "Kevin Didelot", email = "kevin@keltio.fr"}
 ]
@@ -12,6 +12,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "Pillow>=10.0.1",
     "requests>=2.31.0",
+    "opencv-python>=4.8.0",
 ]
 
 [project.optional-dependencies]

@@ -1,8 +1,8 @@
 # Variables d'environnement
 .env
 
-# Images générées
-generated_images/
+# Fichiers générés
+generated/
 
 # uv
 .venv/
