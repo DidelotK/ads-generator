@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "subject": "Application mobile de fitness",
+    "style": "engaging",
+    "model": "gpt-3.5-turbo",
+    "generated_at": "2025-06-27T17:03:15.042259",
+    "num_hooks": 3
+  },
+  "hooks": [
+    {
+      "hook": "Transformez votre smartphone en coach personnel avec notre application mobile de fitness !",
+      "description": "Offrez-vous un programme d'entraînement personnalisé, des conseils de professionnels et suivez vos progrès en temps réel pour atteindre vos objectifs de remise en forme."
+    },
+    {
+      "hook": "Retrouvez la motivation et la forme avec notre appli de fitness innovante !",
+      "description": "Découvrez une approche ludique et motivante pour vous exercer, des challenges stimulants, des séances variées adaptées à votre niveau et une communauté inspirante pour vous accompagner dans votre parcours."
+    },
+    {
+      "hook": "Le secret des sportifs performants révélé dans notre application mobile de fitness.",
+      "description": "Accédez aux programmes d'entraînement des champions, suivez leurs conseils experts, mesurez vos performances et défiez-vous pour repousser vos limites et devenir la meilleure version de vous-même."
+    }
+  ]
+}

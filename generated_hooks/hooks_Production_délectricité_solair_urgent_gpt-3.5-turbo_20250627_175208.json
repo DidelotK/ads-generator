@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "subject": "Production d'électricité solaire à domicile",
+    "style": "urgent",
+    "model": "gpt-3.5-turbo",
+    "generated_at": "2025-06-27T17:52:08.252737",
+    "num_hooks": 1
+  },
+  "hooks": [
+    {
+      "hook": "Plus d'électricité solaire, moins de facture : passez à l'action maintenant !",
+      "description": "Cette accroche met en avant les économies potentielles et incite à passer à l'action immédiate pour profiter des avantages de l'électricité solaire à domicile."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "subject": "Production d'électricité solaire à domicile",
+    "style": "urgent",
+    "model": "gpt-3.5-turbo",
+    "generated_at": "2025-06-27T17:49:19.445178",
+    "num_hooks": 3
+  },
+  "hooks": [
+    {
+      "hook": "Découvrez comment produire votre propre électricité solaire dès aujourd'hui !",
+      "description": "Cette accroche incite à l'action immédiate en mettant en avant la possibilité de produire de l'électricité solaire chez soi. Elle crée un sentiment d'urgence en encourageant le lecteur à agir dès maintenant pour passer à l'énergie solaire."
+    },
+    {
+      "hook": "Ne perdez plus de temps, passez à l'électricité solaire à domicile dès maintenant !",
+      "description": "Cette accroche met l'accent sur l'urgence et l'action immédiate en encourageant le lecteur à passer à l'électricité solaire chez lui sans plus attendre. Elle vise à susciter l'intérêt et à inciter à une décision rapide."
+    },
+    {
+      "hook": "Transformez votre toit en source d'énergie dès aujourd'hui avec l'électricité solaire !",
+      "description": "Cette accroche propose une solution concrète en invitant le lecteur à transformer son toit en une source d'énergie grâce à l'électricité solaire. Elle crée un sentiment d'urgence en soulignant la possibilité de le faire dès aujourd'hui."
+    }
+  ]
+}
