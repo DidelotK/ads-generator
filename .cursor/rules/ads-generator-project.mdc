@@ -32,8 +32,6 @@ ads-generator/
 │   └── test_marketing_resources.py
 ├── scripts/                      # Scripts utilitaires
 │   └── setup.sh                  # Script d'installation automatique
-├── prompts/                      # Prompts et templates
-│   └── energy.md                 # Prompts spécifiques
 ├── generated/                    # Fichiers générés (créé automatiquement)
 │   ├── hooks/                    # Accroches générées
 │   └── images/                   # Images générées

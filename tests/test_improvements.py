@@ -8,8 +8,8 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from src.generators.hook_generator import HookGenerator
-from src.generators.image_generator import ImageGenerator
-from src.marketing_config import get_image_prompt, IMAGE_CONFIG, HookStyle, ImageStyle
+from src.generators.image_generator import ImageGenerator, ImageStyle
+from src.marketing_config import get_image_prompt, IMAGE_CONFIG, HookStyle
 
 def test_hook_length():
     """Test de la longueur des hooks générés"""

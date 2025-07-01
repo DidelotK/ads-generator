@@ -52,47 +52,6 @@ LOG_LEVEL=INFO
 DEBUG_MODE=false
 ```
 
-## 📁 Structure du Repository
-
-```
-ads-generator/
-├── README.md                     # Documentation principale (vue utilisateur)
-├── docs/                         # Documentation détaillée
-│   ├── installation.md           # Guide d'installation utilisateur
-│   ├── developer.md              # Guide développeur (ce fichier)
-│   ├── hook_generator.md         # Documentation accroches
-│   └── image_generator.md        # Documentation images
-├── src/                          # Code source principal
-│   ├── __init__.py
-│   ├── marketing_config.py       # Configuration marketing
-│   └── generators/               # Modules de génération
-│       ├── __init__.py
-│       ├── hook_generator.py     # Générateur d'accroches
-│       └── image_generator.py    # Générateur d'images
-├── examples/                     # Exemples d'utilisation
-│   ├── __init__.py
-│   ├── example_hooks.py          # Exemple accroches
-│   ├── example_marketing_hooks.py # Exemple marketing
-│   ├── example_usage.py          # Exemple images général
-│   └── example_gpt_image_usage.py # Exemple GPT-Image-1
-├── tests/                        # Tests unitaires
-│   ├── test_hook_generator.py    # Tests générateur accroches
-│   ├── test_improvements.py      # Tests améliorations
-│   └── test_marketing_resources.py # Tests ressources marketing
-├── scripts/                      # Scripts utilitaires
-│   └── setup.sh                  # Script d'installation
-├── prompts/                      # Prompts et templates
-│   └── energy.md                 # Template énergie
-├── generated/                    # Fichiers générés (créé automatiquement)
-│   ├── hooks/                    # Accroches générées
-│   └── images/                   # Images générées
-├── hook_generator.py             # Script principal accroches
-├── image_generator.py            # Script principal images
-├── pyproject.toml                # Configuration uv et métadonnées
-├── uv.lock                       # Verrouillage des dépendances
-└── .env.example                  # Exemple de configuration
-```
-
 ### Architecture des modules
 
 #### `src/generators/`

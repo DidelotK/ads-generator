@@ -1,9 +1,5 @@
 # Générateur de Prompts d'Images
 
-## Vue d'ensemble
-
-Le générateur de prompts d'images est un module qui crée des prompts détaillés pour générer des images publicitaires optimisées pour Facebook Ads. Il s'inspire du fichier `prompts/energy.md` pour fournir des templates de base et génère des prompts personnalisés selon différents styles visuels.
-
 ## Fonctionnalités
 
 - 🎨 **Styles multiples** : Réaliste, photographique, artistique, commercial, lifestyle, dramatique, etc.
@@ -14,7 +10,6 @@ Le générateur de prompts d'images est un module qui crée des prompts détaill
 - 🌍 **Support multilingue** : Génération en français par défaut
 - 📝 **Prompts textuels directs** : Format prêt à l'emploi pour les générateurs d'images
 - 🛡️ **Contraintes de réalisme** : Évite les anomalies anatomiques et éléments impossibles
-- 📋 **Template de base** : Utilise le template de `prompts/energy.md`
 
 ## Installation
 
@@ -136,31 +131,6 @@ Chaque prompt généré inclut automatiquement des contraintes pour assurer la q
 - ✅ **Couleurs harmonieuses** et réalistes
 - ✅ **Détails nets** et précis
 - ✅ **Qualité photographique** professionnelle
-
-## Template de base
-
-Le générateur utilise le template de base du fichier `prompts/energy.md` :
-
-```
-Génère une image pour une publicité facebook ads qui a les informations suivantes :
-
-Titre : <Accroche de l'ads>
-Description : <Description de l'ads>
-
-Sur l'image il pourrait être intéressant de mettre en avant des éléments comme :
-<
-    3 à 5 éléments à mettre en avant sur l'image, lié à l'accroche et description pour inciter le visiteur à cliquer sur le lien
->
-
-L'image générée :
-- ne doit pas contenir le titre, ni la description (sera déjà affiché au dessus dans facebook)
-- doit être réaliste (pas d'homme avec 3 mains etc)
-```
-
-Ce template est automatiquement enrichi avec :
-- Les contraintes de style spécifiques
-- Les contraintes techniques de réalisme
-- Les éléments visuels détectés automatiquement
 
 ## Fichiers de sortie
 

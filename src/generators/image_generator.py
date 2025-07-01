@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import openai
 import requests
 from enum import Enum
+from src.generators.prompt_generator import PromptGenerator
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -65,6 +66,9 @@ class ImageGenerator:
         self.client = openai.OpenAI(api_key=self.api_key)
         self.output_dir = Path("generated") / "images"
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Initialiser le prompt generator pour la lecture de prompts
+        self.prompt_generator = PromptGenerator(api_key=self.api_key)
         
         # Configuration des modèles et leurs tarifs (en USD par image)
         self.models = {
@@ -178,7 +182,7 @@ class ImageGenerator:
         # Construire le prompt final
         if prompt:
             # Vérifier si le prompt est un chemin vers un fichier ou un prompt direct
-            base_prompt = self._resolve_prompt_input(prompt)
+            base_prompt = self.prompt_generator.resolve_prompt_input(prompt)
         else:
             base_prompt = style_prompts.get(style, style_prompts["realistic"])
         
@@ -391,7 +395,7 @@ class ImageGenerator:
                 print("-" * 60)
                 
                 # Extraire les informations du prompt
-                full_prompt = self._extract_prompt_from_data(prompt_data)
+                full_prompt = self.prompt_generator.extract_prompt_from_data(prompt_data)
                 
                 # Informations d'affichage
                 print(f"📝 Prompt: {full_prompt[:100]}...")
@@ -464,164 +468,14 @@ class ImageGenerator:
                 "total_count": 0
             }
 
-    def _extract_prompt_from_data(self, prompt_data):
-        """
-        Extrait le prompt complet à partir des données de prompt
-        
-        Args:
-            prompt_data: Données du prompt (dict ou str)
-            
-        Returns:
-            str: Prompt complet formaté
-        """
-        if isinstance(prompt_data, dict):
-            # Nouvelle structure avec propriétés séparées
-            if 'prompt' in prompt_data:
-                # Prompt complet déjà généré
-                return prompt_data['prompt']
-            else:
-                # Construire le prompt à partir des éléments
-                elements = prompt_data.get('elements', [])
-                ambiance = prompt_data.get('ambiance', '')
-                style_desc = prompt_data.get('style', '')
-                details_techniques = prompt_data.get('details_techniques', '')
-                contraintes = prompt_data.get('contraintes', '')
-                
-                # Construire le prompt complet
-                prompt_parts = []
-                if elements:
-                    prompt_parts.append(f"Éléments visuels: {', '.join(elements)}")
-                if ambiance:
-                    prompt_parts.append(f"Ambiance: {ambiance}")
-                if style_desc:
-                    prompt_parts.append(f"Style: {style_desc}")
-                if details_techniques:
-                    prompt_parts.append(f"Détails techniques: {details_techniques}")
-                if contraintes:
-                    prompt_parts.append(f"Contraintes: {contraintes}")
-                
-                return "\n".join(prompt_parts)
-        else:
-            # Ancienne structure ou prompt simple
-            return str(prompt_data)
 
-    def _resolve_prompt_input(self, prompt_input):
-        """
-        Résout l'entrée prompt : soit un texte direct, soit un chemin vers un fichier
-        
-        Args:
-            prompt_input (str): Prompt direct ou chemin vers un fichier
-            
-        Returns:
-            str: Prompt résolu
-        """
-        # Vérifier si c'est un chemin vers un fichier existant
-        if self._is_file_path(prompt_input):
-            print(f"📁 Lecture du prompt depuis le fichier: {prompt_input}")
-            return self._read_prompt_from_file(prompt_input)
-        else:
-            # C'est un prompt direct
-            return prompt_input
 
-    def _is_file_path(self, text):
-        """
-        Détermine si le texte est un chemin vers un fichier existant
-        
-        Args:
-            text (str): Texte à analyser
-            
-        Returns:
-            bool: True si c'est un chemin vers un fichier existant
-        """
-        # Vérifications simples pour détecter un chemin de fichier
-        if not text or len(text) > 500:  # Prompts très longs peu probable d'être des chemins
-            return False
-        
-        # Vérifier si le fichier existe
-        if os.path.exists(text):
-            return os.path.isfile(text)
-        
-        return False
 
-    def _read_prompt_from_file(self, file_path):
-        """
-        Lit un prompt depuis un fichier
-        
-        Args:
-            file_path (str): Chemin vers le fichier
-            
-        Returns:
-            str: Contenu du prompt
-        """
-        try:
-            file_extension = Path(file_path).suffix.lower()
-            
-            if file_extension == '.json':
-                return self._read_prompt_from_json(file_path)
-            elif file_extension in ['.txt', '.md', '.text']:
-                return self._read_prompt_from_text(file_path)
-            else:
-                # Essayer de lire comme un fichier texte par défaut
-                return self._read_prompt_from_text(file_path)
-                
-        except Exception as e:
-            print(f"❌ Erreur lors de la lecture du fichier {file_path}: {e}")
-            return f"Erreur lors de la lecture du fichier: {file_path}"
 
-    def _read_prompt_from_text(self, file_path):
-        """
-        Lit un prompt depuis un fichier texte simple
-        
-        Args:
-            file_path (str): Chemin vers le fichier texte
-            
-        Returns:
-            str: Contenu du fichier
-        """
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read().strip()
-        
-        print(f"📝 Prompt lu depuis {file_path}: {content[:100]}...")
-        return content
 
-    def _read_prompt_from_json(self, file_path):
-        """
-        Lit un prompt depuis un fichier JSON simple (pas les fichiers de batch de prompts)
-        
-        Args:
-            file_path (str): Chemin vers le fichier JSON
-            
-        Returns:
-            str: Prompt extrait du JSON
-        """
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
-        # Différentes structures possibles pour un prompt simple
-        if isinstance(data, str):
-            # JSON simple contenant juste un string
-            prompt = data
-        elif isinstance(data, dict):
-            if 'prompt' in data:
-                # Structure avec clé 'prompt'
-                prompt = data['prompt']
-            elif 'description' in data:
-                # Structure avec clé 'description'
-                prompt = data['description']
-            elif 'text' in data:
-                # Structure avec clé 'text'
-                prompt = data['text']
-            elif 'content' in data:
-                # Structure avec clé 'content'
-                prompt = data['content']
-            else:
-                # Convertir tout le dict en string
-                prompt = str(data)
-        elif isinstance(data, list) and data:
-            # Liste de prompts, prendre le premier
-            prompt = str(data[0])
-        else:
-            prompt = str(data)
-        
-        print(f"📝 Prompt lu depuis {file_path}: {prompt[:100]}...")
-        return prompt
+
+
+
+
+
+
