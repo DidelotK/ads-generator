@@ -491,15 +491,17 @@ class TestPromptGeneratorIntegration(unittest.TestCase):
         
         generator = PromptGenerator()
         
-        # Le générateur lève une ValueError en cas de JSON invalide
-        with self.assertRaises(ValueError):
-            generator.generate_prompts(
-                hook="Test hook",
-                description="Test description",
-                num_prompts=1,
-                style="realistic",
-                model="gpt-3.5-turbo"
-            )
+        # Le générateur retourne une liste vide en cas de JSON invalide
+        prompts = generator.generate_prompts(
+            hook="Test hook",
+            description="Test description",
+            num_prompts=1,
+            style="realistic",
+            model="gpt-3.5-turbo"
+        )
+        
+        # Devrait retourner une liste vide en cas d'erreur
+        self.assertEqual(prompts, [])
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     @patch('src.generators.prompt_generator.openai.OpenAI')
