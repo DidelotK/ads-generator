@@ -9,7 +9,7 @@ Le projet `ads-generator` utilise GitHub Actions avec une **architecture modulai
 L'architecture suit le principe **DRY (Don't Repeat Yourself)** avec :
 
 - **🔧 Action composite** (`.github/actions/setup-env/`) : Configuration réutilisable de l'environnement
-- **🧪 Workflow réutilisable** (`.github/workflows/reusable-tests.yml`) : Template pour l'exécution de tests
+- **🧪 Workflow réutilisable** (`.github/workflows/run-tests.yml`) : Template pour l'exécution de tests
 - **📋 Workflows spécialisés** : `tests.yml` et `ci.yml` qui utilisent les composants réutilisables
 
 ### 🎯 Composants disponibles
@@ -31,9 +31,9 @@ inputs:
   cache-key-suffix: 'default'  # Suffixe pour le cache
 ```
 
-## 🧪 Workflow réutilisable : Tests
+## 🧪 Workflow réutilisable : Run Tests
 
-**Fichier** : `.github/workflows/reusable-tests.yml`
+**Fichier** : `.github/workflows/run-tests.yml`
 
 ### Paramètres configurables
 ```yaml
@@ -49,7 +49,7 @@ inputs:
 ```yaml
 jobs:
   my-tests:
-    uses: ./.github/workflows/reusable-tests.yml
+    uses: ./.github/workflows/run-tests.yml
     with:
       test-command: "just check"
       job-name: "Tests principaux"
@@ -66,7 +66,7 @@ jobs:
 ```yaml
 jobs:
   tests:
-    uses: ./.github/workflows/reusable-tests.yml
+    uses: ./.github/workflows/run-tests.yml
     with:
       test-command: "just check"
       job-name: "Tests principaux"
@@ -84,19 +84,19 @@ jobs:
 ```yaml
 jobs:
   tests:
-    uses: ./.github/workflows/reusable-tests.yml
+    uses: ./.github/workflows/run-tests.yml
     with:
       test-command: "just check"
       upload-coverage: true
       
   tests-rapides:
-    uses: ./.github/workflows/reusable-tests.yml
+    uses: ./.github/workflows/run-tests.yml
     with:
       test-command: "just test-ultra"
       upload-coverage: false
       
   qualite-code:
-    uses: ./.github/workflows/reusable-tests.yml
+    uses: ./.github/workflows/run-tests.yml
     with:
       test-command: "just format && just lint && just typecheck"
       continue-on-error: true
@@ -123,7 +123,7 @@ jobs:
 ```yaml
 # Dans n'importe quel workflow
 new-test:
-  uses: ./.github/workflows/reusable-tests.yml
+  uses: ./.github/workflows/run-tests.yml
   with:
     test-command: "just mon-nouveau-test"
     job-name: "Mon nouveau test"

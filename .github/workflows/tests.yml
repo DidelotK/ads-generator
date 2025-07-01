@@ -10,7 +10,7 @@ on:
 jobs:
   tests:
     name: 🧪 Tests principaux
-    uses: ./.github/workflows/reusable-tests.yml
+    uses: ./.github/workflows/run-tests.yml
     with:
       test-command: "just check"
       job-name: "Tests principaux"
