@@ -16,7 +16,7 @@ jobs:
       test-command: "just check"
       job-name: "Tests principaux"
       upload-coverage: true
-        
+
   # Tests rapides
   tests-rapides:
     name: ⚡ Tests rapides
@@ -25,7 +25,7 @@ jobs:
       test-command: "just test-ultra"
       job-name: "Tests rapides"
       upload-coverage: false
-      
+
   # Qualité du code
   qualite-code:
     name: 🔍 Qualité du code
