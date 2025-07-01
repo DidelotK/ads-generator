@@ -1,0 +1,37 @@
+name: CI - Tests automatisés
+
+# Déclenchement du workflow
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  # Tests principaux avec couverture
+  tests:
+    name: 🧪 Tests principaux
+    uses: ./.github/workflows/run-tests.yml
+    with:
+      test-command: "just check"
+      job-name: "Tests principaux"
+      upload-coverage: true
+
+  # Tests rapides
+  tests-rapides:
+    name: ⚡ Tests rapides
+    uses: ./.github/workflows/run-tests.yml
+    with:
+      test-command: "just test-ultra"
+      job-name: "Tests rapides"
+      upload-coverage: false
+
+  # Qualité du code
+  qualite-code:
+    name: 🔍 Qualité du code
+    uses: ./.github/workflows/run-tests.yml
+    with:
+      test-command: "just format && just lint && just typecheck"
+      job-name: "Qualité du code"
+      upload-coverage: false
+      continue-on-error: true

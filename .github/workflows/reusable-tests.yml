@@ -1,0 +1,61 @@
+name: 🧪 Reusable Tests Workflow
+
+on:
+  workflow_call:
+    inputs:
+      test-command:
+        description: 'Commande de test à exécuter'
+        required: true
+        type: string
+      job-name:
+        description: 'Nom du job'
+        required: false
+        type: string
+        default: 'Tests'
+      python-version:
+        description: 'Version de Python'
+        required: false
+        type: string
+        default: '3.13'
+      upload-coverage:
+        description: 'Upload du rapport de couverture'
+        required: false
+        type: boolean
+        default: false
+      continue-on-error:
+        description: 'Continuer en cas d\'erreur'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  test:
+    name: ${{ inputs.job-name }}
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 📥 Checkout du code
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      
+    # 🔧 Configuration de l'environnement (action réutilisable)
+    - name: 🔧 Setup Environment
+      uses: ./.github/actions/setup-env
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache-key-suffix: ${{ inputs.job-name }}
+        
+    # 🧪 Exécution de la commande de test
+    - name: 🧪 Run ${{ inputs.test-command }}
+      run: ${{ inputs.test-command }}
+      continue-on-error: ${{ inputs.continue-on-error }}
+      
+    # 📊 Upload du rapport de couverture (conditionnel)
+    - name: 📊 Upload coverage
+      if: ${{ inputs.upload-coverage && success() }}
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-${{ inputs.job-name }}
+        fail_ci_if_error: false

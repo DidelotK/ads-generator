@@ -1,0 +1,17 @@
+name: 🧪 Tests
+
+# Déclenchement à chaque push de commit
+on:
+  push:
+    branches: [ "**" ]  # Tous les branches
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  tests:
+    name: 🧪 Tests principaux
+    uses: ./.github/workflows/run-tests.yml
+    with:
+      test-command: "just check"
+      job-name: "Tests principaux"
+      upload-coverage: true
