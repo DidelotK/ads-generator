@@ -62,7 +62,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-branch",
-    "--cov-fail-under=25"
+    "--cov-fail-under=60"
 ]
 
 [tool.coverage.run]
@@ -75,6 +75,9 @@ omit = [
 ]
 
 [tool.coverage.report]
+# Coverage minimum requirements - fail if below 85%
+fail_under = 85
+
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",

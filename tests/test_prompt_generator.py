@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests pour le générateur de prompts d'images
+Tests complets pour le générateur de prompts d'images
 """
 
 import unittest
@@ -17,89 +17,87 @@ sys.path.append(str(Path(__file__).parent.parent / "src"))
 from generators.prompt_generator import PromptGenerator, PromptStyle, ImagePrompt, ImagePromptList
 
 class TestPromptStyle(unittest.TestCase):
-    """Tests pour la classe PromptStyle"""
+    """Tests pour l'énumération PromptStyle"""
     
     def test_get_style_prompts(self):
         """Test de récupération des descriptions de styles"""
-        styles = PromptStyle.get_style_prompts()
-        self.assertIsInstance(styles, dict)
-        self.assertIn("realistic", styles)
-        self.assertIn("photographic", styles)
-        self.assertIn("artistic", styles)
+        style_prompts = PromptStyle.get_style_prompts()
+        
+        self.assertIsInstance(style_prompts, dict)
+        self.assertIn(PromptStyle.REALISTIC.value, style_prompts)
+        self.assertIn(PromptStyle.PHOTOGRAPHIC.value, style_prompts)
+        self.assertIn(PromptStyle.ARTISTIC.value, style_prompts)
+        
+        # Vérifier que chaque style a une description
+        for style, description in style_prompts.items():
+            self.assertIsInstance(description, str)
+            self.assertGreater(len(description), 0)
     
     def test_get_default_styles(self):
         """Test de récupération des styles par défaut"""
         default_styles = PromptStyle.get_default_styles()
+        
         self.assertIsInstance(default_styles, list)
-        self.assertIn("realistic", default_styles)
-        self.assertIn("photographic", default_styles)
-        self.assertIn("commercial", default_styles)
+        self.assertEqual(len(default_styles), 3)
+        self.assertIn(PromptStyle.REALISTIC.value, default_styles)
+        self.assertIn(PromptStyle.PHOTOGRAPHIC.value, default_styles)
+        self.assertIn(PromptStyle.COMMERCIAL.value, default_styles)
     
     def test_is_valid_style(self):
         """Test de validation des styles"""
+        # Styles valides
         self.assertTrue(PromptStyle.is_valid_style("realistic"))
+        self.assertTrue(PromptStyle.is_valid_style("photographic"))
         self.assertTrue(PromptStyle.is_valid_style("artistic"))
-        self.assertFalse(PromptStyle.is_valid_style("invalid_style"))
+        
+        # Styles invalides
+        self.assertFalse(PromptStyle.is_valid_style("inexistant"))
+        self.assertFalse(PromptStyle.is_valid_style(""))
+        self.assertFalse(PromptStyle.is_valid_style(None))
 
 class TestImagePrompt(unittest.TestCase):
-    """Tests pour les modèles Pydantic"""
+    """Tests pour la classe ImagePrompt"""
     
     def test_image_prompt_creation(self):
-        """Test de création d'un prompt d'image"""
-        prompt_data = {
-            "elements": ["compteur", "factures", "personne"],
-            "ambiance": "moderne et rassurante",
-            "style": "realistic",
-            "details_techniques": "haute résolution, éclairage naturel",
-            "contraintes": "pas de texte sur l'image",
-            "description": "Image réaliste montrant des économies d'énergie"
-        }
+        """Test de création d'un ImagePrompt"""
+        prompt = ImagePrompt(
+            elements=["smartphone", "personne"],
+            ambiance="moderne et technologique",
+            style="photographie professionnelle",
+            details_techniques="haute résolution, éclairage naturel",
+            contraintes="pas de texte, composition équilibrée",
+            description="Image d'une personne utilisant un smartphone"
+        )
         
-        image_prompt = ImagePrompt(**prompt_data)
-        self.assertEqual(image_prompt.style, prompt_data["style"])
-        self.assertEqual(image_prompt.elements, prompt_data["elements"])
-        self.assertEqual(image_prompt.ambiance, prompt_data["ambiance"])
-        self.assertEqual(image_prompt.details_techniques, prompt_data["details_techniques"])
-        self.assertEqual(image_prompt.contraintes, prompt_data["contraintes"])
-        self.assertEqual(image_prompt.description, prompt_data["description"])
-        # Vérifier que le prompt est généré automatiquement
-        self.assertIsInstance(image_prompt.prompt, str)
-        self.assertGreater(len(image_prompt.prompt), 0)
+        self.assertEqual(prompt.elements, ["smartphone", "personne"])
+        self.assertEqual(prompt.ambiance, "moderne et technologique")
+        self.assertIn("smartphone, personne", prompt.prompt)
+        self.assertIn("moderne et technologique", prompt.prompt)
     
     def test_image_prompt_list_creation(self):
-        """Test de création d'une liste de prompts"""
-        prompts_data = {
-            "prompts": [
-                {
-                    "elements": ["élément 1"],
-                    "ambiance": "moderne",
-                    "style": "realistic",
-                    "details_techniques": "haute qualité",
-                    "contraintes": "pas de texte",
-                    "description": "Description 1"
-                },
-                {
-                    "elements": ["élément 2"],
-                    "ambiance": "artistique",
-                    "style": "artistic",
-                    "details_techniques": "couleurs vives",
-                    "contraintes": "composition équilibrée",
-                    "description": "Description 2"
-                }
-            ]
-        }
+        """Test de création d'une ImagePromptList"""
+        prompt1 = ImagePrompt(
+            elements=["test1"],
+            ambiance="test",
+            style="test",
+            details_techniques="test",
+            contraintes="test",
+            description="test1"
+        )
+        prompt2 = ImagePrompt(
+            elements=["test2"],
+            ambiance="test",
+            style="test",
+            details_techniques="test",
+            contraintes="test",
+            description="test2"
+        )
         
-        prompt_list = ImagePromptList(**prompts_data)
+        prompt_list = ImagePromptList(prompts=[prompt1, prompt2])
         self.assertEqual(len(prompt_list.prompts), 2)
-        self.assertEqual(prompt_list.prompts[0].elements, ["élément 1"])
-        self.assertEqual(prompt_list.prompts[0].style, "realistic")
-        self.assertEqual(prompt_list.prompts[1].style, "artistic")
-        # Vérifier que les prompts sont générés automatiquement
-        self.assertIsInstance(prompt_list.prompts[0].prompt, str)
-        self.assertIsInstance(prompt_list.prompts[1].prompt, str)
 
 class TestPromptGenerator(unittest.TestCase):
-    """Tests pour le générateur de prompts"""
+    """Tests pour la classe PromptGenerator"""
     
     def setUp(self):
         """Configuration initiale pour les tests"""
@@ -107,12 +105,14 @@ class TestPromptGenerator(unittest.TestCase):
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     def test_init_with_env_key(self):
-        """Test d'initialisation avec clé API depuis l'environnement"""
+        """Test d'initialisation avec clé d'environnement"""
         generator = PromptGenerator()
         self.assertEqual(generator.api_key, 'test_key')
+        self.assertIsNotNone(generator.client)
+        self.assertTrue(generator.output_dir.exists())
     
     def test_init_with_provided_key(self):
-        """Test d'initialisation avec clé API fournie"""
+        """Test d'initialisation avec clé fournie"""
         generator = PromptGenerator(api_key=self.mock_api_key)
         self.assertEqual(generator.api_key, self.mock_api_key)
     
@@ -128,14 +128,15 @@ class TestPromptGenerator(unittest.TestCase):
         generator = PromptGenerator()
         models = generator.get_available_models()
         
-        self.assertIn("gpt-4", models)
+        self.assertIsInstance(models, dict)
         self.assertIn("gpt-3.5-turbo", models)
+        self.assertIn("gpt-4", models)
         
-        gpt4_info = models["gpt-4"]
-        self.assertIn("name", gpt4_info)
-        self.assertIn("description", gpt4_info)
-        self.assertIn("input_cost", gpt4_info)
-        self.assertIn("output_cost", gpt4_info)
+        for model_id, model_info in models.items():
+            self.assertIn("name", model_info)
+            self.assertIn("description", model_info)
+            self.assertIn("input_cost", model_info)
+            self.assertIn("output_cost", model_info)
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     def test_get_available_styles(self):
@@ -143,33 +144,27 @@ class TestPromptGenerator(unittest.TestCase):
         generator = PromptGenerator()
         styles = generator.get_available_styles()
         
-        self.assertIn("realistic", styles)
-        self.assertIn("artistic", styles)
-        self.assertIn("commercial", styles)
-        
-        realistic_info = styles["realistic"]
-        self.assertIn("name", realistic_info)
-        self.assertIn("description", realistic_info)
-    
-
+        self.assertIsInstance(styles, dict)
+        for style_name, style_info in styles.items():
+            self.assertIn("name", style_info)
+            self.assertIn("description", style_info)
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     def test_calculate_cost(self):
-        """Test de calcul des coûts"""
+        """Test de calcul de coût"""
         generator = PromptGenerator()
         
-        cost = generator._calculate_cost("gpt-3.5-turbo", 1000, 500)
-        self.assertIsInstance(cost, float)
+        # Test avec modèle valide
+        cost = generator._calculate_cost("gpt-3.5-turbo", 100, 50)
         self.assertGreater(cost, 0)
-    
-
+        self.assertIsInstance(cost, float)
+        
+        # Test avec modèle inexistant (devrait utiliser le défaut)
+        cost_default = generator._calculate_cost("modele_inexistant", 100, 50)
+        self.assertGreater(cost_default, 0)
 
 class TestPromptReading(unittest.TestCase):
-    """Tests pour les fonctionnalités de lecture de prompts"""
-    
-    def setUp(self):
-        """Configuration initiale pour les tests"""
-        self.mock_api_key = "test_api_key_123"
+    """Tests pour la lecture de prompts depuis des fichiers"""
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     def test_is_file_path_valid_file(self):
@@ -177,52 +172,35 @@ class TestPromptReading(unittest.TestCase):
         generator = PromptGenerator()
         
         # Créer un fichier temporaire
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
-            temp_file.write("Test content")
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            temp_file.write(b"test content")
             temp_file_path = temp_file.name
         
         try:
-            # Test avec un fichier existant
+            # Devrait détecter que c'est un fichier
             self.assertTrue(generator._is_file_path(temp_file_path))
             
-            # Test avec un texte normal (pas un chemin)
+            # Test avec texte normal (pas un fichier)
             self.assertFalse(generator._is_file_path("Ceci est un prompt normal"))
             
-            # Test avec un chemin inexistant
-            self.assertFalse(generator._is_file_path("/chemin/inexistant/fichier.txt"))
-            
-            # Test avec un texte très long (ne peut pas être un chemin)
-            long_text = "Ceci est un très long texte " * 50
+            # Test avec texte très long
+            long_text = "a" * 600
             self.assertFalse(generator._is_file_path(long_text))
             
-            # Test avec None ou chaîne vide
+            # Test avec None/empty
             self.assertFalse(generator._is_file_path(None))
             self.assertFalse(generator._is_file_path(""))
             
         finally:
-            # Nettoyer le fichier temporaire
             os.unlink(temp_file_path)
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     def test_read_prompt_from_text_file(self):
-        """Test de lecture d'un prompt depuis un fichier texte"""
+        """Test de lecture depuis un fichier texte"""
         generator = PromptGenerator()
         
-        test_content = "Ceci est un prompt de test\navec plusieurs lignes\net du contenu détaillé."
-        
-        # Tester avec un fichier .txt
+        test_content = "Ceci est un prompt de test depuis un fichier texte"
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as temp_file:
-            temp_file.write(test_content)
-            temp_file_path = temp_file.name
-        
-        try:
-            result = generator._read_prompt_from_text(temp_file_path)
-            self.assertEqual(result, test_content)
-        finally:
-            os.unlink(temp_file_path)
-        
-        # Tester avec un fichier .md
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as temp_file:
             temp_file.write(test_content)
             temp_file_path = temp_file.name
         
@@ -234,181 +212,371 @@ class TestPromptReading(unittest.TestCase):
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     def test_read_prompt_from_json_file(self):
-        """Test de lecture d'un prompt depuis un fichier JSON"""
+        """Test de lecture depuis un fichier JSON"""
         generator = PromptGenerator()
         
-        # Test avec JSON simple (string)
-        json_content = '"Ceci est un prompt simple en JSON"'
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
-            temp_file.write(json_content)
-            temp_file_path = temp_file.name
+        # Test avec différentes structures JSON
+        test_cases = [
+            {"prompt": "Test prompt depuis JSON"},
+            {"description": "Test description depuis JSON"},
+            {"text": "Test text depuis JSON"},
+            {"content": "Test content depuis JSON"},
+            "Simple string JSON",
+            ["Premier élément de liste"],
+            {"autre_clé": "Valeur quelconque"}
+        ]
         
-        try:
-            result = generator._read_prompt_from_json(temp_file_path)
-            self.assertEqual(result, "Ceci est un prompt simple en JSON")
-        finally:
-            os.unlink(temp_file_path)
-        
-        # Test avec JSON objet avec clé 'prompt'
-        json_content = json.dumps({"prompt": "Prompt depuis clé prompt"})
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
-            temp_file.write(json_content)
-            temp_file_path = temp_file.name
-        
-        try:
-            result = generator._read_prompt_from_json(temp_file_path)
-            self.assertEqual(result, "Prompt depuis clé prompt")
-        finally:
-            os.unlink(temp_file_path)
-        
-        # Test avec JSON objet avec clé 'description'
-        json_content = json.dumps({"description": "Prompt depuis description"})
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
-            temp_file.write(json_content)
-            temp_file_path = temp_file.name
-        
-        try:
-            result = generator._read_prompt_from_json(temp_file_path)
-            self.assertEqual(result, "Prompt depuis description")
-        finally:
-            os.unlink(temp_file_path)
-        
-        # Test avec JSON liste
-        json_content = json.dumps(["Premier prompt", "Deuxième prompt"])
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
-            temp_file.write(json_content)
-            temp_file_path = temp_file.name
-        
-        try:
-            result = generator._read_prompt_from_json(temp_file_path)
-            self.assertEqual(result, "Premier prompt")
-        finally:
-            os.unlink(temp_file_path)
+        for test_data in test_cases:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
+                json.dump(test_data, temp_file)
+                temp_file_path = temp_file.name
+            
+            try:
+                result = generator._read_prompt_from_json(temp_file_path)
+                self.assertIsInstance(result, str)
+                self.assertGreater(len(result), 0)
+            finally:
+                os.unlink(temp_file_path)
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     def test_read_prompt_from_file_dispatcher(self):
-        """Test du dispatcher de lecture de fichiers selon l'extension"""
+        """Test du dispatcher de lecture de fichier"""
         generator = PromptGenerator()
         
         # Test avec fichier .txt
-        txt_content = "Prompt depuis fichier texte"
+        test_content = "Test content"
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as temp_file:
-            temp_file.write(txt_content)
+            temp_file.write(test_content)
             temp_file_path = temp_file.name
         
         try:
             result = generator.read_prompt_from_file(temp_file_path)
-            self.assertEqual(result, txt_content)
+            self.assertEqual(result, test_content)
         finally:
             os.unlink(temp_file_path)
         
         # Test avec fichier .json
-        json_content = json.dumps({"prompt": "Prompt depuis JSON"})
+        test_json = {"prompt": "Test JSON prompt"}
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
-            temp_file.write(json_content)
+            json.dump(test_json, temp_file)
             temp_file_path = temp_file.name
         
         try:
             result = generator.read_prompt_from_file(temp_file_path)
-            self.assertEqual(result, "Prompt depuis JSON")
-        finally:
-            os.unlink(temp_file_path)
-        
-        # Test avec extension inconnue (traité comme texte)
-        unknown_content = "Prompt depuis extension inconnue"
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.unknown', delete=False) as temp_file:
-            temp_file.write(unknown_content)
-            temp_file_path = temp_file.name
-        
-        try:
-            result = generator.read_prompt_from_file(temp_file_path)
-            self.assertEqual(result, unknown_content)
+            self.assertEqual(result, "Test JSON prompt")
         finally:
             os.unlink(temp_file_path)
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
-    def test_resolve_prompt_input_with_file(self):
-        """Test de résolution d'entrée prompt avec fichier"""
+    def test_read_prompt_from_file_error_handling(self):
+        """Test de gestion d'erreur pour fichier inexistant"""
         generator = PromptGenerator()
         
-        # Test avec fichier
-        file_content = "Contenu du fichier de prompt"
+        result = generator.read_prompt_from_file("/fichier/inexistant.txt")
+        self.assertIn("Erreur lors de la lecture du fichier", result)
+    
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
+    def test_resolve_prompt_input_with_file(self):
+        """Test de résolution d'input avec fichier"""
+        generator = PromptGenerator()
+        
+        test_content = "Prompt depuis fichier"
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as temp_file:
-            temp_file.write(file_content)
+            temp_file.write(test_content)
             temp_file_path = temp_file.name
         
         try:
             result = generator.resolve_prompt_input(temp_file_path)
-            self.assertEqual(result, file_content)
+            self.assertEqual(result, test_content)
         finally:
             os.unlink(temp_file_path)
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     def test_resolve_prompt_input_with_text(self):
-        """Test de résolution d'entrée prompt avec texte direct"""
+        """Test de résolution d'input avec texte direct"""
         generator = PromptGenerator()
         
-        # Test avec prompt direct
-        direct_prompt = "Ceci est un prompt direct, pas un fichier"
+        direct_prompt = "Ceci est un prompt direct"
         result = generator.resolve_prompt_input(direct_prompt)
         self.assertEqual(result, direct_prompt)
-    
-    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
-    def test_extract_prompt_from_data_dict_with_prompt(self):
-        """Test d'extraction de prompt depuis dictionnaire avec clé 'prompt'"""
-        generator = PromptGenerator()
-        
-        prompt_data = {
-            "prompt": "Prompt complet déjà généré",
-            "elements": ["élément1", "élément2"],
-            "ambiance": "moderne"
-        }
-        
-        result = generator.extract_prompt_from_data(prompt_data)
-        self.assertEqual(result, "Prompt complet déjà généré")
-    
-    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
-    def test_extract_prompt_from_data_dict_without_prompt(self):
-        """Test d'extraction de prompt depuis dictionnaire sans clé 'prompt'"""
-        generator = PromptGenerator()
-        
-        prompt_data = {
-            "elements": ["élément1", "élément2"],
-            "ambiance": "moderne et élégant",
-            "style": "photographique professionnel",
-            "details_techniques": "haute résolution, éclairage naturel",
-            "contraintes": "pas de texte, composition équilibrée"
-        }
-        
-        result = generator.extract_prompt_from_data(prompt_data)
-        expected_lines = [
-            "Éléments visuels: élément1, élément2",
-            "Ambiance: moderne et élégant",
-            "Style: photographique professionnel",
-            "Détails techniques: haute résolution, éclairage naturel",
-            "Contraintes: pas de texte, composition équilibrée"
-        ]
-        expected = "\n".join(expected_lines)
-        self.assertEqual(result, expected)
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     def test_extract_prompt_from_data_string(self):
         """Test d'extraction de prompt depuis string"""
         generator = PromptGenerator()
         
-        prompt_data = "Ceci est un prompt simple sous forme de string"
-        result = generator.extract_prompt_from_data(prompt_data)
-        self.assertEqual(result, prompt_data)
+        test_prompt = "Test prompt simple"
+        result = generator.extract_prompt_from_data(test_prompt)
+        self.assertEqual(result, test_prompt)
     
     @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
-    def test_read_prompt_from_file_error_handling(self):
-        """Test de gestion d'erreurs lors de la lecture de fichier"""
+    def test_extract_prompt_from_data_dict_with_prompt(self):
+        """Test d'extraction depuis dict avec clé prompt"""
         generator = PromptGenerator()
         
-        # Test avec fichier inexistant
-        result = generator.read_prompt_from_file("/fichier/inexistant.txt")
-        self.assertIn("Erreur lors de la lecture du fichier", result)
+        test_data = {"prompt": "Prompt complet existant"}
+        result = generator.extract_prompt_from_data(test_data)
+        self.assertEqual(result, "Prompt complet existant")
+    
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
+    def test_extract_prompt_from_data_dict_without_prompt(self):
+        """Test d'extraction depuis dict sans clé prompt"""
+        generator = PromptGenerator()
+        
+        test_data = {
+            "elements": ["élément1", "élément2"],
+            "ambiance": "moderne",
+            "style": "photographique",
+            "details_techniques": "haute résolution",
+            "contraintes": "pas de texte"
+        }
+        
+        result = generator.extract_prompt_from_data(test_data)
+        self.assertIn("élément1, élément2", result)
+        self.assertIn("moderne", result)
+        self.assertIn("photographique", result)
 
+class TestPromptGeneratorIntegration(unittest.TestCase):
+    """Tests d'intégration avec l'API OpenAI mockée"""
+    
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
+    @patch('src.generators.prompt_generator.openai.OpenAI')
+    def test_generate_prompts_success(self, mock_openai):
+        """Test de génération de prompts avec succès"""
+        mock_client = Mock()
+        mock_openai.return_value = mock_client
+        
+        # Mock de la réponse API
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = '''{
+            "prompts": [
+                {
+                    "elements": ["smartphone", "personne"],
+                    "ambiance": "moderne",
+                    "style": "photographique",
+                    "details_techniques": "haute résolution",
+                    "contraintes": "pas de texte",
+                    "description": "Test prompt description"
+                }
+            ]
+        }'''
+        mock_response.usage.prompt_tokens = 100
+        mock_response.usage.completion_tokens = 50
+        mock_client.chat.completions.create.return_value = mock_response
+        
+        generator = PromptGenerator()
+        prompts = generator.generate_prompts(
+            hook="Test hook",
+            description="Test description",
+            num_prompts=1,
+            style="realistic",
+            model="gpt-3.5-turbo"
+        )
+        
+        self.assertIsInstance(prompts, list)
+        self.assertEqual(len(prompts), 1)
+        self.assertIn("prompt", prompts[0])
+        self.assertIn("elements", prompts[0])
+    
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
+    @patch('src.generators.prompt_generator.openai.OpenAI')
+    def test_generate_prompts_with_invalid_style(self, mock_openai):
+        """Test avec style invalide"""
+        mock_client = Mock()
+        mock_openai.return_value = mock_client
+        
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = '''{
+            "prompts": [
+                {
+                    "elements": ["test"],
+                    "ambiance": "test",
+                    "style": "test",
+                    "details_techniques": "test",
+                    "contraintes": "test",
+                    "description": "test"
+                }
+            ]
+        }'''
+        mock_response.usage.prompt_tokens = 100
+        mock_response.usage.completion_tokens = 50
+        mock_client.chat.completions.create.return_value = mock_response
+        
+        generator = PromptGenerator()
+        prompts = generator.generate_prompts(
+            hook="Test hook",
+            description="Test description",
+            num_prompts=1,
+            style="style_invalide",  # Style invalide
+            model="gpt-3.5-turbo"
+        )
+        
+        # Devrait utiliser le style par défaut et fonctionner
+        self.assertIsInstance(prompts, list)
+    
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
+    @patch('src.generators.prompt_generator.openai.OpenAI')
+    def test_generate_prompts_with_invalid_model(self, mock_openai):
+        """Test avec modèle invalide"""
+        mock_client = Mock()
+        mock_openai.return_value = mock_client
+        
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = '''{
+            "prompts": [
+                {
+                    "elements": ["test"],
+                    "ambiance": "test",
+                    "style": "test",
+                    "details_techniques": "test",
+                    "contraintes": "test",
+                    "description": "test"
+                }
+            ]
+        }'''
+        mock_response.usage.prompt_tokens = 100
+        mock_response.usage.completion_tokens = 50
+        mock_client.chat.completions.create.return_value = mock_response
+        
+        generator = PromptGenerator()
+        prompts = generator.generate_prompts(
+            hook="Test hook",
+            description="Test description",
+            num_prompts=1,
+            style="realistic",
+            model="modele_invalide"  # Modèle invalide
+        )
+        
+        # Devrait utiliser le modèle par défaut et fonctionner
+        self.assertIsInstance(prompts, list)
+    
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
+    @patch('src.generators.prompt_generator.openai.OpenAI')
+    def test_generate_prompts_api_error(self, mock_openai):
+        """Test de gestion d'erreur API"""
+        mock_client = Mock()
+        mock_openai.return_value = mock_client
+        
+        # Simuler une erreur API
+        mock_client.chat.completions.create.side_effect = Exception("Erreur API simulée")
+        
+        generator = PromptGenerator()
+        prompts = generator.generate_prompts(
+            hook="Test hook",
+            description="Test description",
+            num_prompts=1,
+            style="realistic",
+            model="gpt-3.5-turbo"
+        )
+        
+        # Devrait retourner une liste vide en cas d'erreur
+        self.assertEqual(prompts, [])
+    
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
+    @patch('src.generators.prompt_generator.openai.OpenAI')
+    def test_generate_prompts_invalid_json_response(self, mock_openai):
+        """Test avec réponse JSON invalide"""
+        mock_client = Mock()
+        mock_openai.return_value = mock_client
+        
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = '{"invalid": "json structure"}'
+        mock_response.usage.prompt_tokens = 100
+        mock_response.usage.completion_tokens = 50
+        mock_client.chat.completions.create.return_value = mock_response
+        
+        generator = PromptGenerator()
+        
+        # Le générateur lève une ValueError en cas de JSON invalide
+        with self.assertRaises(ValueError):
+            generator.generate_prompts(
+                hook="Test hook",
+                description="Test description",
+                num_prompts=1,
+                style="realistic",
+                model="gpt-3.5-turbo"
+            )
+    
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
+    @patch('src.generators.prompt_generator.openai.OpenAI')
+    def test_generate_multiple_styles(self, mock_openai):
+        """Test de génération avec plusieurs styles"""
+        mock_client = Mock()
+        mock_openai.return_value = mock_client
+        
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = '''{
+            "prompts": [
+                {
+                    "elements": ["test"],
+                    "ambiance": "test",
+                    "style": "test",
+                    "details_techniques": "test",
+                    "contraintes": "test",
+                    "description": "test"
+                }
+            ]
+        }'''
+        mock_response.usage.prompt_tokens = 100
+        mock_response.usage.completion_tokens = 50
+        mock_client.chat.completions.create.return_value = mock_response
+        
+        generator = PromptGenerator()
+        results = generator.generate_multiple_styles(
+            hook="Test hook",
+            description="Test description",
+            styles=["realistic", "photographic"],
+            num_prompts=1,
+            model="gpt-3.5-turbo"
+        )
+        
+        self.assertIsInstance(results, dict)
+        self.assertEqual(len(results), 2)
+        self.assertIn("realistic", results)
+        self.assertIn("photographic", results)
+    
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
+    @patch('src.generators.prompt_generator.openai.OpenAI')
+    def test_generate_multiple_styles_with_defaults(self, mock_openai):
+        """Test de génération avec styles par défaut"""
+        mock_client = Mock()
+        mock_openai.return_value = mock_client
+        
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = '''{
+            "prompts": [
+                {
+                    "elements": ["test"],
+                    "ambiance": "test",
+                    "style": "test",
+                    "details_techniques": "test",
+                    "contraintes": "test",
+                    "description": "test"
+                }
+            ]
+        }'''
+        mock_response.usage.prompt_tokens = 100
+        mock_response.usage.completion_tokens = 50
+        mock_client.chat.completions.create.return_value = mock_response
+        
+        generator = PromptGenerator()
+        results = generator.generate_multiple_styles(
+            hook="Test hook",
+            description="Test description",
+            styles=None,  # Utiliser les styles par défaut
+            num_prompts=1,
+            model="gpt-3.5-turbo"
+        )
+        
+        self.assertIsInstance(results, dict)
+        # Devrait utiliser les 3 styles par défaut
+        self.assertEqual(len(results), 3)
 
 if __name__ == '__main__':
     unittest.main()

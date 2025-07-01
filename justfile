@@ -5,6 +5,8 @@
 python := "uv run python"
 pytest := "uv run pytest"
 pytest_cov := "uv run pytest --cov=src --cov-report=term-missing --cov-branch"
+default_model := "gpt-3.5-turbo"
+default_num_hooks := "5"
 
 # Tâche par défaut
 default:
@@ -23,6 +25,8 @@ clean:
     find . -type f -name "*.pyo" -delete 2>/dev/null || true
     find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
     find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
+    @echo "🧹 Nettoyage des fichiers générés..."
+    rm -rf generated/ htmlcov/ .coverage .pytest_cache/
 
 # Lancement de tous les tests avec coverage
 test:
@@ -133,4 +137,42 @@ help:
     @echo "  just coverage     - Rapport de couverture détaillé (HTML + XML)"
     @echo "  just demo-prompt  - Démo PromptGenerator"
     @echo "  just demo-image   - Démo ImageGenerator"
-    @echo "  just info         - Infos du projet" 
+    @echo "  just info         - Infos du projet"
+    @echo ""
+    @echo "🆘 Commandes disponibles:"
+    @just --list
+
+# Tests rapides (sans appels API ni couverture)
+test-fast:
+    @echo "🚀 Exécution des tests rapides..."
+    uv run pytest tests/test_fast.py tests/test_marketing_resources.py::TestMarketingConfig -v --tb=short --no-cov
+
+# Tests complets (avec tous les mocks)
+test-all:
+    @echo "🧪 Exécution de tous les tests..."
+    uv run pytest tests/ --cov=src --cov-report=term-missing --tb=short
+
+# Tests avec couverture minimale pour développement
+test-dev:
+    @echo "🔧 Tests de développement..."
+    uv run pytest tests/test_fast.py tests/test_marketing_resources.py::TestMarketingConfig tests/test_improvements.py -v --cov=src --cov-report=term-missing
+
+# Tests avec timeout pour éviter les blocages
+test-safe:
+    @echo "🛡️ Tests avec timeout de sécurité..."
+    timeout 60s uv run pytest tests/test_fast.py tests/test_marketing_resources.py::TestMarketingConfig --no-cov -v || echo "⚠️ Tests interrompus après 60s"
+
+# Lancer les hooks (exemple)
+hooks subject=default_model num=default_num_hooks:
+    @echo "🎯 Génération de {{num}} hooks pour: {{subject}}"
+    uv run python hook_generator.py "{{subject}}" --num-hooks {{num}} --model {{default_model}}
+
+# Lancer les images (exemple)  
+images prompt="Une image de test" num="1":
+    @echo "🎨 Génération de {{num}} image(s) pour: {{prompt}}"
+    uv run python image_generator.py "{{prompt}}" --num-images {{num}}
+
+# Lancer les prompts (exemple)
+prompts hook="Test hook" desc="Test description" num="3":
+    @echo "📝 Génération de {{num}} prompts pour: {{hook}}"
+    uv run python prompt_generator.py "{{hook}}" "{{desc}}" --num-prompts {{num}} 

@@ -8,6 +8,7 @@ Une suite complète d'outils IA pour générer des accroches marketing et des im
 - [🎯 Générateur d'Accroches](#-générateur-daccroches)
 - [🎨 Générateur d'Images](#-générateur-dimages)
 - [👨‍💻 Guide Développeur](#️-guide-développeur)
+- [🧪 Tests](#-tests)
 - [🐛 Dépannage](#-dépannage)
 
 ## 🚀 Installation
@@ -53,6 +54,34 @@ Ce guide inclut :
 - **Configuration des IDE** et outils de développement
 - **Guide de contribution** et bonnes pratiques
 
+## 🧪 Tests
+
+### Tests Ultra-Rapides (1-2 secondes)
+```bash
+# Tests essentiels sans couverture (ultra-rapide)
+just test-fast
+
+# Tests avec timeout de sécurité (évite les blocages)
+just test-safe
+```
+
+### Tests avec Couverture
+```bash
+# Tests de développement avec couverture minimale
+just test-dev
+
+# Tous les tests avec couverture complète
+just test-all
+```
+
+### 📖 Documentation complète des tests
+Consultez le [guide complet des tests](docs/testing.md) pour :
+- **Commandes détaillées** et leurs usages spécifiques
+- **Structure des tests** et organisation des fichiers
+- **Mocking et performance** pour éviter les appels API
+- **Dépannage** des problèmes courants
+- **Workflow de développement** recommandé
+
 ## 🐛 Dépannage
 
 ### Erreur "Clé API requise"
@@ -88,5 +117,6 @@ Pour les problèmes techniques plus complexes, consultez la section [Debugging](
 - [Documentation du générateur d'accroches](docs/hook_generator.md)
 - [Documentation du générateur d'images](docs/image_generator.md)
 - [Guide développeur](docs/developer.md)
+- [Guide des tests](docs/testing.md)
 - [Exemples d'utilisation](examples/)
 - [Tests unitaires](tests/)

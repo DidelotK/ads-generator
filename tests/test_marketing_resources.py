@@ -6,7 +6,7 @@ Tests pour les ressources marketing et la configuration
 import sys
 import os
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, Mock
 from pathlib import Path
 import time
 
@@ -200,8 +200,19 @@ class TestMarketingConfig(unittest.TestCase):
 class TestMarketingResourcesGeneration(unittest.TestCase):
     """Tests pour la génération de ressources marketing"""
     
-    def test_marketing_resources(self):
-        """Test de la génération de ressources marketing"""
+    @patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
+    @patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
+    @patch('examples.example_marketing_hooks.time.sleep')
+    def test_marketing_resources(self, mock_sleep, mock_generate_image, mock_generate_hooks):
+        """Test de la génération de ressources marketing avec mocks"""
+        
+        # Mock des retours de fonctions
+        mock_generate_hooks.return_value = [{
+            'hook': 'Hook de test mocké',
+            'description': 'Description de test mockée'
+        }]
+        mock_generate_image.return_value = Path('generated/images/mock_image.png')
+        mock_sleep.return_value = None
         
         print("🧪 Test de la fonction generate_marketing_resources")
         print("=" * 50)
@@ -250,8 +261,19 @@ class TestMarketingResourcesGeneration(unittest.TestCase):
             ImageGenerator.generate_image = original_image_method
             time.sleep = original_sleep
 
-    def test_edge_cases(self):
-        """Test des cas limites"""
+    @patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
+    @patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
+    @patch('examples.example_marketing_hooks.time.sleep')
+    def test_edge_cases(self, mock_sleep, mock_generate_image, mock_generate_hooks):
+        """Test des cas limites avec mocks"""
+        # Mock des retours de fonctions
+        mock_generate_hooks.return_value = [{
+            'hook': 'Hook de test',
+            'description': 'Description de test'
+        }]
+        mock_generate_image.return_value = Path('generated/images/mock_image.png')
+        mock_sleep.return_value = None
+        
         # Test avec 0 ressources
         resources_zero = generate_marketing_resources(num_resources=0)
         self.assertEqual(len(resources_zero), 0)
@@ -306,8 +328,19 @@ def main():
         print("⚠️  Certains tests ont échoué")
 
 # Fonctions de test compatibles avec l'ancien format
-def test_marketing_resources():
-    """Test de la génération de ressources marketing"""
+@patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
+@patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
+@patch('examples.example_marketing_hooks.time.sleep')
+def test_marketing_resources(mock_sleep, mock_generate_image, mock_generate_hooks):
+    """Test de la génération de ressources marketing avec mocks"""
+    
+    # Mock des retours de fonctions
+    mock_generate_hooks.return_value = [{
+        'hook': 'Hook de test mocké',
+        'description': 'Description de test mockée'
+    }]
+    mock_generate_image.return_value = Path('generated/images/mock_image.png')
+    mock_sleep.return_value = None
     
     print("🧪 Test de la fonction generate_marketing_resources")
     print("=" * 50)

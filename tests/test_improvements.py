@@ -5,14 +5,42 @@ Script de test pour vérifier les améliorations des hooks et images
 
 import sys
 import os
+from unittest.mock import Mock, patch
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from src.generators.hook_generator import HookGenerator
 from src.generators.image_generator import ImageGenerator, ImageStyle
 from src.marketing_config import get_image_prompt, IMAGE_CONFIG, HookStyle
 
-def test_hook_length():
+@patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
+@patch('src.generators.hook_generator.openai.OpenAI')
+def test_hook_length(mock_openai):
     """Test de la longueur des hooks générés"""
+    
+    # Mock de l'API OpenAI
+    mock_client = Mock()
+    mock_openai.return_value = mock_client
+    
+    # Mock de la réponse avec hooks courts
+    mock_response = Mock()
+    mock_response.choices = [Mock()]
+    mock_response.choices[0].message.content = '''{
+        "hooks": [
+            {
+                "hook": "Astuce révolutionnaire",
+                "description": "Une méthode simple et efficace pour économiser"
+            },
+            {
+                "hook": "Secret énergétique",
+                "description": "La technique cachée des experts"
+            }
+        ]
+    }'''
+    mock_response.usage.prompt_tokens = 100
+    mock_response.usage.completion_tokens = 50
+    mock_response.usage.total_tokens = 150
+    mock_client.chat.completions.create.return_value = mock_response
     
     generator = HookGenerator()
     hooks = generator.generate_hooks_simple(
@@ -50,7 +78,7 @@ def main():
     print("=" * 60)
     
     tests = [
-        ("Longueur des hooks", test_hook_length),
+        ("Longueur des hooks", lambda: test_hook_length()),
         ("Prompts d'images", test_image_prompts),
         ("Configuration", test_configuration)
     ]

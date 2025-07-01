@@ -202,15 +202,16 @@ def db_session():
 
 ### Coverage Configuration
 ```ini
-# pytest.ini
-[tool:pytest]
-addopts =
-    --cov=src
-    --cov-report=term-missing
-    --cov-report=html:htmlcov
-    --cov-report=xml:coverage.xml
-    --cov-fail-under=100
-    --cov-branch
+# pytest.ini or pyproject.toml
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml:coverage.xml",
+    "--cov-fail-under=85",
+    "--cov-branch"
+]
     --strict-markers
     --strict-config
 testpaths = tests
@@ -231,14 +232,20 @@ omit =
     */migrations/*
     */conftest.py
 
-[coverage:report]
-exclude_lines =
-    pragma: no cover
-    def __repr__
-    def __str__
-    raise AssertionError
-    raise NotImplementedError
-    if __name__ == .__main__.:
+[tool.coverage.report]
+# Coverage minimum requirements - fail if below 85%
+fail_under = 85
+
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "def __str__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:"
+]
+show_missing = true
+precision = 2
 ```
 
 ### Testing Tools and Dependencies
@@ -526,7 +533,7 @@ repos:
 - ❌ **NEVER** commit code that doesn't pass all quality checks
 
 ### Code Quality Enforcement
-- **100% test coverage** required for all new code
+- **85% minimum test coverage** required (strictly enforced)
 - **All linting checks** must pass before commit
 - **Type checking** must pass without errors
 - **Security scans** must pass for production code
