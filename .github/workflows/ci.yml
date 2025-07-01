@@ -7,117 +7,31 @@ on:
   pull_request:
     branches: [ main, master, develop ]
 
-# Variables d'environnement globales
-env:
-  PYTHON_VERSION: "3.13"
-
 jobs:
+  # Tests principaux avec couverture
   tests:
-    name: 🧪 Tests et vérifications qualité
-    runs-on: ubuntu-latest
-    
-    steps:
-    # 📥 Récupération du code source
-    - name: 📥 Checkout du code
-      uses: actions/checkout@v4
-      
-    # 🐍 Configuration de Python
-    - name: 🐍 Configuration de Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
+    name: 🧪 Tests principaux
+    uses: ./.github/workflows/reusable-tests.yml
+    with:
+      test-command: "just check"
+      job-name: "Tests principaux"
+      upload-coverage: true
         
-    # ⚡ Installation de uv (gestionnaire de packages rapide)
-    - name: ⚡ Installation de uv
-      uses: astral-sh/setup-uv@v3
-      with:
-        enable-cache: true
-        
-    # 📦 Installation de Just (task runner)
-    - name: 📦 Installation de Just
-      uses: extractions/setup-just@v2
-      
-    # 🔧 Synchronisation des dépendances
-    - name: 🔧 Installation des dépendances
-      run: |
-        uv sync --dev
-        
-    # 🧪 Lancement des tests principaux
-    - name: 🧪 Exécution des tests (just check)
-      run: |
-        just check
-        
-    # 📊 Upload du rapport de couverture (optionnel)
-    - name: 📊 Upload du rapport de couverture
-      if: success()
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-        
-  # Job séparé pour les tests rapides (optionnel)
+  # Tests rapides
   tests-rapides:
     name: ⚡ Tests rapides
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: 📥 Checkout du code
-      uses: actions/checkout@v4
+    uses: ./.github/workflows/reusable-tests.yml
+    with:
+      test-command: "just test-ultra"
+      job-name: "Tests rapides"
+      upload-coverage: false
       
-    - name: 🐍 Configuration de Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-        
-    - name: ⚡ Installation de uv
-      uses: astral-sh/setup-uv@v3
-      with:
-        enable-cache: true
-        
-    - name: 📦 Installation de Just
-      uses: extractions/setup-just@v2
-      
-    - name: 🔧 Installation des dépendances
-      run: uv sync --dev
-        
-    - name: ⚡ Tests ultra-rapides
-      run: just test-ultra
-      
-  # Job pour la vérification du style de code
+  # Qualité du code
   qualite-code:
     name: 🔍 Qualité du code
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: 📥 Checkout du code
-      uses: actions/checkout@v4
-      
-    - name: 🐍 Configuration de Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-        
-    - name: ⚡ Installation de uv
-      uses: astral-sh/setup-uv@v3
-      with:
-        enable-cache: true
-        
-    - name: 📦 Installation de Just
-      uses: extractions/setup-just@v2
-      
-    - name: 🔧 Installation des dépendances
-      run: uv sync --dev
-        
-    - name: 🎨 Vérification du formatage
-      run: just format
-      continue-on-error: true
-      
-    - name: 🔍 Vérification du style (linting)
-      run: just lint
-      continue-on-error: true
-      
-    - name: 🔎 Vérification des types
-      run: just typecheck
+    uses: ./.github/workflows/reusable-tests.yml
+    with:
+      test-command: "just format && just lint && just typecheck"
+      job-name: "Qualité du code"
+      upload-coverage: false
       continue-on-error: true

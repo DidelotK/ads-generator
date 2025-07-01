@@ -1,0 +1,46 @@
+name: '🔧 Setup Environment'
+description: 'Configure Python, uv, just et installe les dépendances'
+
+inputs:
+  python-version:
+    description: 'Version de Python à utiliser'
+    required: false
+    default: '3.13'
+  cache-key-suffix:
+    description: 'Suffixe pour la clé de cache'
+    required: false
+    default: 'default'
+
+outputs:
+  python-version:
+    description: 'Version de Python configurée'
+    value: ${{ inputs.python-version }}
+
+runs:
+  using: 'composite'
+  steps:
+    # 📥 Configuration de Python
+    - name: 🐍 Setup Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python-version }}
+        
+    # ⚡ Installation de uv avec cache
+    - name: ⚡ Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+        cache-suffix: ${{ inputs.cache-key-suffix }}
+        
+    # 📦 Installation de Just
+    - name: 📦 Install Just
+      uses: extractions/setup-just@v2
+      
+    # 🔧 Installation des dépendances avec cache intelligent
+    - name: 🔧 Install dependencies
+      shell: bash
+      run: |
+        echo "📦 Installation des dépendances avec uv..."
+        uv sync --dev
+        echo "✅ Dépendances installées avec succès"
