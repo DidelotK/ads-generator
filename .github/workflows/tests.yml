@@ -1,0 +1,46 @@
+name: 🧪 Tests
+
+# Déclenchement à chaque push de commit
+on:
+  push:
+    branches: [ "**" ]  # Tous les branches
+  pull_request:
+    branches: [ main, master, develop ]
+
+# Variables d'environnement
+env:
+  PYTHON_VERSION: "3.13"
+
+jobs:
+  tests:
+    name: 🧪 Exécution des tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Récupération du code
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      
+    # Configuration Python
+    - name: 🐍 Setup Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    # Installation uv
+    - name: ⚡ Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+        
+    # Installation Just
+    - name: 📦 Install Just
+      uses: extractions/setup-just@v2
+      
+    # Installation des dépendances
+    - name: 🔧 Install dependencies
+      run: uv sync --dev
+        
+    # Exécution des tests
+    - name: 🧪 Run tests
+      run: just check
