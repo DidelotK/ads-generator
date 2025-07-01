@@ -19,10 +19,33 @@ from src.marketing_config import HookStyle
 load_dotenv()
 
 class ImagePrompt(BaseModel):
-    prompt: str = Field(..., description="Le prompt détaillé pour générer l'image")
-    style: str = Field(..., description="Le style d'image (réaliste, artistique, etc.)")
-    elements: List[str] = Field(..., description="Les éléments visuels à mettre en avant")
+    elements: List[str] = Field(..., description="Les éléments visuels à inclure dans l'image")
+    ambiance: str = Field(..., description="L'ambiance et l'émotion à transmettre")
+    style: str = Field(..., description="Le style photographique à utiliser")
+    details_techniques: str = Field(..., description="Les détails techniques (qualité, couleurs, etc.)")
+    contraintes: str = Field(..., description="Les contraintes de l'image (pas de texte, composition, etc.)")
     description: str = Field(..., description="Description de l'approche visuelle")
+    
+    @property
+    def prompt(self) -> str:
+        """Génère le prompt complet en combinant tous les éléments"""
+        elements_str = ", ".join(self.elements)
+        
+        prompt_parts = [
+            f"Éléments visuels: {elements_str}",
+            f"Ambiance: {self.ambiance}",
+            f"Style: {self.style}",
+            f"Détails techniques: {self.details_techniques}",
+            f"Contraintes: {self.contraintes}"
+        ]
+        
+        return ". ".join(prompt_parts) + "."
+    
+    def model_dump(self, **kwargs):
+        """Override pour inclure la propriété prompt dans la sérialisation"""
+        data = super().model_dump(**kwargs)
+        data['prompt'] = self.prompt
+        return data
 
 class ImagePromptList(BaseModel):
     prompts: List[ImagePrompt]
@@ -141,30 +164,6 @@ class PromptGenerator:
         style_prompts = PromptStyle.get_style_prompts()
         style_description = style_prompts.get(style, style_prompts[PromptStyle.REALISTIC.value])
 
-        base_prompt = f"""Génère une image pour une publicité facebook ads qui a les informations suivantes :
-
-Accroche de l'ads : {hook}
-Description de l'ads : {description}
-
-Sur l'image il pourrait être intéressant de mettre en avant des éléments comme :
-<Elements à définir>
-
-L'image générée :
-- Style : {style_description}
-- L'image doit être ultra-réaliste et professionnelle
-- Pas de texte, pas de titre, pas de description sur l'image
-- Pas d'anomalies anatomiques (humains avec 3 mains, etc.)
-- Pas d'éléments flottants ou impossibles
-- Composition équilibrée et professionnelle
-- Éclairage naturel et cohérent
-- Couleurs harmonieuses et réalistes
-- Détails nets et précis
-- Qualité photographique professionnelle
-
-Autres consignes :
-<Autres consignes à définir>
-"""
-
         print(f"🎨 Génération de {num_prompts} prompts d'images pour: {hook}")
         print(f"🤖 Modèle: {model_info['name']}")
         print(f"🎨 Style: {style}")
@@ -174,34 +173,79 @@ Autres consignes :
             response = self.client.chat.completions.create(
                 model=model,
                 messages=[
-                    {"role": "system", "content": "Tu es un expert en création de prompts d'images pour publicités. Tu génères des prompts textuels directs et détaillés, prêts à être utilisés directement pour générer des images. Chaque prompt doit être complet et autonome."},
-                    {"role": "user", "content": f"""
-Génère {num_prompts} prompts qui seront utilisés par un autre llm pour créer des images. Les prompts doivent être sous le format suivant :
-<prompt>
-{base_prompt}
-</prompt>
+                    {"role": "system", "content": """Tu es un expert en création de prompts d'images pour publicités Facebook Ads. 
+Tu génères des prompts textuels directs et détaillés, prêts à être utilisés directement pour générer des images avec DALL-E, Midjourney ou Stable Diffusion.
 
-Les éléments à définir sont :
-- <Elements à définir>
-- <Autres consignes à définir>
+IMPORTANT : Tu dois toujours répondre au format JSON valide avec la structure suivante :
+{
+  "prompts": [
+    {
+      "elements": ["élément1", "élément2", "élément3"],
+      "ambiance": "Description de l'ambiance et émotion à transmettre",
+      "style": "Description du style photographique",
+      "details_techniques": "Détails techniques (qualité, couleurs, éclairage, composition)",
+      "contraintes": "Contraintes spécifiques (pas de texte, pas d'anomalies, composition équilibrée, etc.)",
+      "description": "Description de l'approche visuelle générale"
+    }
+  ]
+}"""},
+                    {"role": "user", "content": f"""Génère {num_prompts} prompts d'images pour une publicité Facebook Ads.
 
-IMPORTANT : Chaque prompt doit être un texte complet et détaillé, prêt à être utilisé directement pour générer une image. Retourne les prompts numérotés (1, 2, 3, etc.). Chaque prompt doit être autonome et contenir toutes les informations nécessaires.
-                    """}
+CONTEXTE :
+- Accroche de l'ads : {hook}
+- Description de l'ads : {description}
+- Style souhaité : {style_description}
+
+INSTRUCTIONS :
+Génère {num_prompts} prompts qui décrivent des images visuellement impactantes pour cette publicité.
+
+Pour chaque prompt, tu dois définir :
+- **elements** : Liste des éléments visuels spécifiques à inclure (objets, personnes, environnement) EN RAPPORT DIRECT avec le hook "{hook}"
+- **ambiance** : L'ambiance et l'émotion à transmettre (mystérieux, moderne, rassurant, etc.)
+- **style** : Le style photographique précis ({style_description})
+- **details_techniques** : Détails techniques précis (qualité, couleurs dominantes, type d'éclairage, composition)
+- **contraintes** : Contraintes spécifiques (pas de texte sur l'image, pas d'anomalies anatomiques, pas d'éléments flottants, composition équilibrée, éclairage cohérent, couleurs réalistes, qualité professionnelle)
+- **description** : Description générale de l'approche visuelle
+
+RÉPONSE REQUISE :
+Tu dois répondre UNIQUEMENT au format JSON valide avec la structure exacte :
+{{
+  "prompts": [
+    {{
+      "elements": ["élément spécifique 1", "élément spécifique 2", "élément spécifique 3"],
+      "ambiance": "Description précise de l'ambiance",
+      "style": "{style_description}",
+      "details_techniques": "Détails techniques précis",
+      "contraintes": "Contraintes spécifiques de l'image",
+      "description": "Description de l'approche visuelle"
+    }}
+  ]
+}}
+
+IMPORTANT : Les éléments doivent être EN RAPPORT DIRECT avec "{hook}" et "{description}" !"""}
                 ],
                 max_tokens=model_info["max_tokens"],
-                temperature=0.8
+                temperature=0.8,
+                response_format={"type": "json_object"}
             )
             generation_time = time.time() - start_time
             
-            # Récupérer la réponse textuelle
+            # Récupérer la réponse JSON
             content = response.choices[0].message.content
-            print(f"🔍 Réponse brute de l'API: {content[:200]}...")
+            print(f"🔍 Réponse JSON de l'API: {content[:200]}...")
             
-            # Parser les prompts depuis le texte
-            prompts = self._parse_text_prompts(content, num_prompts, style)
+            # Parser avec Pydantic
+            try:
+                prompt_list = ImagePromptList.model_validate_json(content)
+                prompts = [prompt.model_dump() for prompt in prompt_list.prompts]
+                print(f"✅ {len(prompts)} prompts parsés avec succès via Pydantic")
+            except ValidationError as e:
+                print(f"❌ Erreur de validation Pydantic: {e}")
+                print(f"🔍 Contenu reçu: {content}")
+                raise ValueError(f"La réponse de l'API n'est pas dans le format attendu. Erreur de validation: {e}")
             
-            # Valider et nettoyer les prompts
-            prompts = self._validate_and_clean_prompts(prompts, num_prompts)
+            # Limiter au nombre demandé
+            prompts = prompts[:num_prompts]
             
             # Calculer les coûts
             input_tokens = response.usage.prompt_tokens
@@ -221,144 +265,6 @@ IMPORTANT : Chaque prompt doit être un texte complet et détaillé, prêt à ê
         except Exception as e:
             print(f"❌ Erreur lors de la génération: {e}")
             return []
-    
-    def _parse_text_prompts(self, content, num_prompts, style):
-        """Parse les prompts depuis le texte de réponse"""
-        prompts = []
-        lines = content.split('\n')
-        current_prompt = ""
-        prompt_number = 0
-        
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            
-            # Détecter le début d'un nouveau prompt (numéroté)
-            if line.startswith(('1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.')) or \
-               line.startswith(('1)', '2)', '3)', '4)', '5)', '6)', '7)', '8)', '9)')):
-                # Sauvegarder le prompt précédent s'il existe
-                if current_prompt:
-                    prompts.append({
-                        "prompt": current_prompt.strip(),
-                        "style": style,
-                        "elements": self._extract_elements_from_prompt(current_prompt),
-                        "description": f"Prompt {prompt_number} généré automatiquement"
-                    })
-                    prompt_number += 1
-                
-                # Commencer un nouveau prompt
-                current_prompt = line.split('.', 1)[1] if '.' in line else line.split(')', 1)[1] if ')' in line else line
-            else:
-                # Continuer le prompt actuel
-                if current_prompt:
-                    current_prompt += " " + line
-                else:
-                    current_prompt = line
-        
-        # Ajouter le dernier prompt
-        if current_prompt and len(prompts) < num_prompts:
-            prompts.append({
-                "prompt": current_prompt.strip(),
-                "style": style,
-                "elements": self._extract_elements_from_prompt(current_prompt),
-                "description": f"Prompt {prompt_number + 1} généré automatiquement"
-            })
-        
-        return prompts
-    
-    def _extract_elements_from_prompt(self, prompt_text):
-        """Extrait les éléments visuels mentionnés dans le prompt"""
-        # Mots-clés communs pour les éléments visuels
-        visual_keywords = [
-            "compteur", "facture", "personne", "humain", "main", "visage", "yeux", "bureau",
-            "maison", "appartement", "voiture", "argent", "euro", "dollar", "carte", "téléphone",
-            "ordinateur", "écran", "document", "papier", "stylo", "table", "chaise", "fenêtre",
-            "porte", "lumière", "ampoule", "électricité", "énergie", "panneau", "solaire",
-            "éolienne", "batterie", "câble", "prise", "interrupteur", "thermostat", "chauffage",
-            "climatisation", "isolation", "toit", "mur", "sol", "plafond", "escalier", "couloir",
-            "cuisine", "salle de bain", "chambre", "salon", "jardin", "balcon", "terrasse"
-        ]
-        
-        elements = []
-        prompt_lower = prompt_text.lower()
-        
-        for keyword in visual_keywords:
-            if keyword in prompt_lower:
-                elements.append(keyword)
-        
-        # Si aucun élément trouvé, retourner des éléments génériques
-        if not elements:
-            elements = ["élément visuel principal", "composition", "éclairage"]
-        
-        return elements[:5]  # Limiter à 5 éléments
-    
-    def _parse_prompts_manually(self, content):
-        """Parse manuellement les prompts depuis le contenu texte"""
-        prompts = []
-        try:
-            # Essayer d'extraire du JSON
-            json_match = self._extract_json_from_response(content)
-            if json_match:
-                data = json.loads(json_match)
-                if isinstance(data, dict) and "prompts" in data:
-                    return data["prompts"]
-            
-            # Fallback: parsing basique
-            lines = content.split('\n')
-            current_prompt = {}
-            
-            for line in lines:
-                line = line.strip()
-                if '"prompt":' in line:
-                    current_prompt["prompt"] = line.split('"prompt":')[1].strip().strip('",')
-                elif '"style":' in line:
-                    current_prompt["style"] = line.split('"style":')[1].strip().strip('",')
-                elif '"elements":' in line:
-                    # Extraire les éléments
-                    elements_start = content.find('"elements":')
-                    if elements_start != -1:
-                        elements_text = content[elements_start:].split(']')[0]
-                        elements = [e.strip().strip('"') for e in elements_text.split('[')[1].split(',')]
-                        current_prompt["elements"] = elements
-                elif '"description":' in line:
-                    current_prompt["description"] = line.split('"description":')[1].strip().strip('",')
-                    if len(current_prompt) >= 4:
-                        prompts.append(current_prompt.copy())
-                        current_prompt = {}
-            
-            return prompts
-            
-        except Exception as e:
-            print(f"❌ Erreur de parsing manuel: {e}")
-            return []
-    
-    def _validate_and_clean_prompts(self, prompts, expected_num):
-        """Valide et nettoie les prompts générés"""
-        if not prompts:
-            return []
-        
-        cleaned_prompts = []
-        for prompt in prompts:
-            if isinstance(prompt, dict):
-                # S'assurer que tous les champs requis sont présents
-                if "prompt" not in prompt or not prompt["prompt"]:
-                    continue
-                if "style" not in prompt:
-                    prompt["style"] = "realistic"
-                if "elements" not in prompt or not prompt["elements"]:
-                    prompt["elements"] = ["élément visuel principal"]
-                if "description" not in prompt:
-                    prompt["description"] = "Approche visuelle standard"
-                
-                # Nettoyer les éléments
-                if isinstance(prompt["elements"], str):
-                    prompt["elements"] = [prompt["elements"]]
-                
-                cleaned_prompts.append(prompt)
-        
-        # Limiter au nombre demandé
-        return cleaned_prompts[:expected_num]
     
     def _calculate_cost(self, model, input_tokens, output_tokens):
         """Calcule le coût estimé de la génération"""
@@ -445,26 +351,4 @@ IMPORTANT : Chaque prompt doit être un texte complet et détaillé, prêt à ê
             prompts = self.generate_prompts(hook, description, num_prompts, style, model)
             all_prompts[style] = prompts
         
-        return all_prompts
-    
-    def _extract_json_from_response(self, content):
-        """Extrait le JSON de la réponse de l'API"""
-        try:
-            # Chercher des accolades
-            start = content.find('{')
-            if start == -1:
-                return None
-            
-            # Trouver la fin correspondante
-            brace_count = 0
-            for i, char in enumerate(content[start:], start):
-                if char == '{':
-                    brace_count += 1
-                elif char == '}':
-                    brace_count -= 1
-                    if brace_count == 0:
-                        return content[start:i+1]
-            
-            return None
-        except Exception:
-            return None 
+        return all_prompts 
