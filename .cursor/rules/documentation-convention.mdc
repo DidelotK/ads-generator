@@ -1,0 +1,38 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Convention de Documentation
+
+## Règle Anti-Duplication
+
+**INTERDICTION STRICTE** : Ne jamais dupliquer la documentation dans le projet.
+
+### Principe Fondamental
+La documentation doit être **unique** et **centralisée**. Chaque concept, processus ou fonctionnalité doit être documenté une seule fois dans une page spécialisée dédiée.
+
+### Directives
+1. **Référencer, ne pas répéter** : Utilisez des liens vers les pages spécialisées plutôt que de réécrire l'information
+2. **Pages spécialisées** : Chaque sujet complexe doit avoir sa propre page de documentation dans le dossier `docs/`
+3. **Liens internes** : Utilisez des références markdown vers les fichiers de documentation appropriés
+4. **Cohérence** : Maintenez une source unique de vérité pour chaque information
+
+### Structure Recommandée
+```
+docs/
+  ├── developer.md          # Guide développeur principal
+  ├── installation.md       # Procédures d'installation
+  ├── hook_generator.md     # Documentation Hook Generator
+  ├── image_generator.md    # Documentation Image Generator
+  └── prompt_generator.md   # Documentation Prompt Generator
+```
+
+### Exemples d'Application
+- ❌ **Mauvais** : Réexpliquer le fonctionnement des hooks dans chaque README
+- ✅ **Bon** : "Pour plus de détails sur les hooks, voir [hook_generator.md](mdc:docs/hook_generator.md)"
+
+### Maintenance
+- Lors de l'ajout de nouvelle documentation, vérifiez qu'elle n'existe pas déjà ailleurs
+- Si une information existe déjà, créez une référence vers la source existante
+- Mettez à jour les références si vous déplacez ou renommez de la documentation
