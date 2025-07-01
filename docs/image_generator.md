@@ -80,6 +80,13 @@ uv run python image_generator.py --quality hd --size 1024x1536
 uv run python image_generator.py --multiple --prompt "Un chat élégant"
 ```
 
+### Génération à partir d'un fichier de prompt
+```bash
+# La fonction generate_image() peut directement accepter un chemin de fichier
+uv run python image_generator.py --prompt "prompts/mon_prompt.txt"
+uv run python image_generator.py --prompt "prompts/description.json" --style cartoon
+```
+
 ### Exemple d'utilisation programmatique
 ```bash
 uv run python examples/example_usage.py
@@ -252,6 +259,29 @@ results = generator.generate_multiple_styles(
     prompt="Un chat élégant",
     styles=["realistic", "cartoon", "artistic"]
 )
+```
+
+### Génération à partir d'un fichier de prompt
+```python
+from src.generators.image_generator import ImageGenerator
+
+generator = ImageGenerator()
+
+# Générer à partir d'un fichier texte
+result = generator.generate_image(
+    prompt="prompts/mon_prompt.txt",  # Chemin vers un fichier
+    style="realistic",
+    size="1024x1024"
+)
+
+# Générer à partir d'un fichier JSON
+result = generator.generate_image(
+    prompt="prompts/description.json",  # Fichier JSON avec un prompt
+    style="cartoon",
+    quality="hd"
+)
+
+# Les formats de fichiers supportés sont : .txt, .md, .json
 ```
 
 ## 🐛 Dépannage
