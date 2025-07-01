@@ -6,14 +6,23 @@ Ce projet utilise `pytest` avec des mocks complets pour éviter les appels API r
 
 ## ⚡ Commandes de Test Rapides
 
-### `just test-fast` - Tests Ultra-Rapides (1-2 secondes)
+### `just test-ultra` - Tests Ultra-Rapides (< 1 seconde)
+```bash
+just test-ultra
+```
+- **Durée** : ~0.97 seconde
+- **Couverture** : Désactivée (pour la vitesse maximale)
+- **Contenu** : Tests les plus essentiels uniquement
+- **Usage** : Feedback instantané pendant le développement
+
+### `just test-fast` - Tests Rapides Complets (3-4 secondes)
 ```bash
 just test-fast
 ```
-- **Durée** : ~1.5 seconde
+- **Durée** : ~4 secondes
 - **Couverture** : Désactivée (pour la vitesse)
-- **Contenu** : Tests essentiels avec mocks complets
-- **Usage** : Développement rapide, vérification avant commit
+- **Contenu** : Tous les tests essentiels avec mocks complets
+- **Usage** : Vérification complète avant commit
 
 ### `just test-safe` - Tests avec Timeout (max 60s)
 ```bash
@@ -112,10 +121,13 @@ open htmlcov/index.html
 
 ### 1. Développement Rapide
 ```bash
-# Pendant le développement
+# Feedback instantané (< 1s)
+just test-ultra
+
+# Tests complets rapides (4s)
 just test-fast
 
-# Vérification occasionnelle
+# Vérification avec couverture
 just test-dev
 ```
 
@@ -170,9 +182,10 @@ just test-safe
 
 ## 🎯 Objectifs de Performance
 
-- **Tests ultra-rapides** : < 2 secondes
-- **Tests de développement** : < 10 secondes
-- **Tests complets** : < 30 secondes
+- **Tests ultra-rapides** : < 1 seconde (`just test-ultra`)
+- **Tests rapides** : < 5 secondes (`just test-fast`)
+- **Tests de développement** : < 10 secondes (`just test-dev`)
+- **Tests complets** : < 30 secondes (`just test-all`)
 - **Couverture minimum** : 60% (dev) / 80% (prod)
 
 ## 🔗 Ressources

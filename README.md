@@ -56,9 +56,12 @@ Ce guide inclut :
 
 ## 🧪 Tests
 
-### Tests Ultra-Rapides (1-2 secondes)
+### Tests Ultra-Rapides (< 1 seconde)
 ```bash
-# Tests essentiels sans couverture (ultra-rapide)
+# Tests essentiels instantanés (< 1s)
+just test-ultra
+
+# Tests complets rapides (4s)
 just test-fast
 
 # Tests avec timeout de sécurité (évite les blocages)

@@ -227,39 +227,33 @@ class TestMarketingResourcesGeneration(unittest.TestCase):
             image_paths = [str(img) if hasattr(img, '__str__') else img for img in images]
             assert isinstance(image_paths, list)
 
-    def test_different_quantities(self):
+    @patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
+    @patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
+    @patch('examples.example_marketing_hooks.time.sleep')
+    @patch('builtins.print')  # Mock print pour accélérer les tests
+    def test_different_quantities(self, mock_print, mock_sleep, mock_generate_image, mock_generate_hooks):
         """Test avec différentes quantités - version mockée pour accélération"""
         
-        from src.generators.hook_generator import HookGenerator
-        from src.generators.image_generator import ImageGenerator
+        # Mock des retours de fonctions
+        mock_generate_hooks.return_value = [{
+            'hook': 'Hook de test mocké',
+            'description': 'Description de test mockée'
+        }]
+        mock_generate_image.return_value = Path('generated/images/mock_image.png')
+        mock_sleep.return_value = None
+        mock_print.return_value = None  # Désactiver les prints
         
-        original_hook_method = HookGenerator.generate_hooks_simple
-        original_image_method = ImageGenerator.generate_image
-        original_sleep = time.sleep
-        
-        def mock_generate_hooks(*args, **kwargs):
-            return [{
-                'hook': 'Hook de test mocké',
-                'description': 'Description de test mockée'
-            }]
-        def mock_generate_image(*args, **kwargs):
-            return Path('generated/images/mock_image.png')
-        def mock_sleep(seconds):
-            return None
-        
-        HookGenerator.generate_hooks_simple = mock_generate_hooks
-        ImageGenerator.generate_image = mock_generate_image
-        time.sleep = mock_sleep
-        
-        try:
-            test_quantities = [1, 3, 5]
-            for quantity in test_quantities:
-                resources = generate_marketing_resources(num_resources=quantity)
-                assert resources and len(resources) == quantity, f"Échec pour {quantity} ressource(s)"
-        finally:
-            HookGenerator.generate_hooks_simple = original_hook_method
-            ImageGenerator.generate_image = original_image_method
-            time.sleep = original_sleep
+        # Test avec différentes quantités (réduit pour la vitesse)
+        test_quantities = [1, 2]  # Réduit de [1, 3, 5] à [1, 2] pour la vitesse
+        for quantity in test_quantities:
+            resources = generate_marketing_resources(num_resources=quantity)
+            self.assertEqual(len(resources), quantity, f"Échec pour {quantity} ressource(s)")
+            
+            # Vérifier la structure de chaque ressource
+            for resource in resources:
+                self.assertIn('hook', resource)
+                self.assertIn('subject', resource)
+                self.assertIn('style', resource)
 
     @patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
     @patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
@@ -355,39 +349,25 @@ def test_marketing_resources(mock_sleep, mock_generate_image, mock_generate_hook
         image_paths = [str(img) if hasattr(img, '__str__') else img for img in images]
         assert isinstance(image_paths, list)
 
-def test_different_quantities():
+@patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
+@patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
+@patch('examples.example_marketing_hooks.time.sleep')
+def test_different_quantities(mock_sleep, mock_generate_image, mock_generate_hooks):
     """Test avec différentes quantités - version mockée pour accélération"""
     
-    from src.generators.hook_generator import HookGenerator
-    from src.generators.image_generator import ImageGenerator
+    # Mock des retours de fonctions
+    mock_generate_hooks.return_value = [{
+        'hook': 'Hook de test mocké',
+        'description': 'Description de test mockée'
+    }]
+    mock_generate_image.return_value = Path('generated/images/mock_image.png')
+    mock_sleep.return_value = None
     
-    original_hook_method = HookGenerator.generate_hooks_simple
-    original_image_method = ImageGenerator.generate_image
-    original_sleep = time.sleep
-    
-    def mock_generate_hooks(*args, **kwargs):
-        return [{
-            'hook': 'Hook de test mocké',
-            'description': 'Description de test mockée'
-        }]
-    def mock_generate_image(*args, **kwargs):
-        return Path('generated/images/mock_image.png')
-    def mock_sleep(seconds):
-        return None
-    
-    HookGenerator.generate_hooks_simple = mock_generate_hooks
-    ImageGenerator.generate_image = mock_generate_image
-    time.sleep = mock_sleep
-    
-    try:
-        test_quantities = [1, 3, 5]
-        for quantity in test_quantities:
-            resources = generate_marketing_resources(num_resources=quantity)
-            assert resources and len(resources) == quantity, f"Échec pour {quantity} ressource(s)"
-    finally:
-        HookGenerator.generate_hooks_simple = original_hook_method
-        ImageGenerator.generate_image = original_image_method
-        time.sleep = original_sleep
+    # Test avec différentes quantités
+    test_quantities = [1, 3, 5]
+    for quantity in test_quantities:
+        resources = generate_marketing_resources(num_resources=quantity)
+        assert resources and len(resources) == quantity, f"Échec pour {quantity} ressource(s)"
 
 if __name__ == "__main__":
     unittest.main() 

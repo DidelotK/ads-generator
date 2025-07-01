@@ -142,10 +142,15 @@ help:
     @echo "🆘 Commandes disponibles:"
     @just --list
 
+# Tests ultra-rapides (essentiels uniquement)
+test-ultra:
+    @echo "⚡ Tests ultra-rapides (essentiels)..."
+    uv run pytest tests/test_fast.py::TestFastMarketingConfig::test_marketing_functions tests/test_fast.py::TestFastHookGenerator::test_hook_generation_fast -v --tb=short --no-cov
+
 # Tests rapides (sans appels API ni couverture)
 test-fast:
     @echo "🚀 Exécution des tests rapides..."
-    uv run pytest tests/test_fast.py tests/test_marketing_resources.py::TestMarketingConfig -v --tb=short --no-cov
+    uv run pytest tests/test_fast.py tests/test_marketing_resources.py::TestMarketingConfig tests/test_marketing_resources.py::TestMarketingResourcesGeneration::test_different_quantities -v --tb=short --no-cov
 
 # Tests complets (avec tous les mocks)
 test-all:
