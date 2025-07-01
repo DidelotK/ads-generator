@@ -284,20 +284,3 @@ def get_templates_by_category(category):
         "révélation": HOOK_TEMPLATES[80:90]
     }
     return categories.get(category, HOOK_TEMPLATES)
-
-if __name__ == "__main__":
-    print("🎯 Configuration Marketing")
-    print("=" * 40)
-    print(f"📝 Sujets disponibles: {len(MARKETING_SUBJECTS)}")
-    print(f"🎨 Styles disponibles: {len(MARKETING_STYLES)}")
-    print(f"🖼️  Styles d'images: {IMAGE_CONFIG['styles']}")
-    print(f"🎨 Thèmes de couleurs: {list(COLOR_THEMES.keys())}")
-    print(f"🔑 Mots-clés marketing: {len(MARKETING_KEYWORDS)}")
-    print(f"📋 Templates d'accroche: {len(HOOK_TEMPLATES)}")
-    
-    print(f"\n📋 Catégories de templates:")
-    categories = ["urgence", "curiosité", "bénéfices", "émotionnel", "questions", 
-                  "preuve_sociale", "rareté", "transformation", "révélation"]
-    for cat in categories:
-        templates = get_templates_by_category(cat)
-        print(f"  • {cat}: {len(templates)} templates") 
