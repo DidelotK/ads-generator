@@ -12,9 +12,9 @@ from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 
 # Ajouter le répertoire src au path pour les imports
-sys.path.append(str(Path(__file__).parent.parent / "src"))
+sys.path.append(str(Path(__file__).parent.parent))
 
-from generators.prompt_generator import PromptGenerator, PromptStyle, ImagePrompt, ImagePromptList
+from src.generators.prompt_generator import PromptGenerator, PromptStyle, ImagePrompt, ImagePromptList
 
 class TestPromptStyle(unittest.TestCase):
     """Tests pour l'énumération PromptStyle"""

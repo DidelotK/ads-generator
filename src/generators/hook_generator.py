@@ -184,8 +184,8 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après."""
             hooks = []
             try:
                 # Essayer de parser avec Pydantic
-                hooks_obj = HookList.parse_raw(arguments)
-                hooks = [h.dict() for h in hooks_obj.hooks]
+                hooks_obj = HookList.model_validate_json(arguments)
+                hooks = [h.model_dump() for h in hooks_obj.hooks]
                 print(f"✅ Parsing Pydantic réussi: {len(hooks)} hooks")
             except ValidationError as ve:
                 print(f"⚠️  Erreur de validation Pydantic, tentative de parsing manuel...")

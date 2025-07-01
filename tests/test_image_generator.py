@@ -12,9 +12,9 @@ from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 
 # Ajouter le répertoire src au path pour les imports
-sys.path.append(str(Path(__file__).parent.parent / "src"))
+sys.path.append(str(Path(__file__).parent.parent))
 
-from generators.image_generator import ImageGenerator, ImageStyle
+from src.generators.image_generator import ImageGenerator, ImageStyle
 from src.generators.prompt_generator import PromptGenerator
 
 class TestImageGeneratorBasic(unittest.TestCase):
@@ -70,8 +70,9 @@ class TestImageGeneratorBasic(unittest.TestCase):
         # Test avec modèle existant
         model_info = generator.get_model_info("gpt-image-1")
         self.assertIsNotNone(model_info)
-        self.assertIn("name", model_info)
-        self.assertIn("description", model_info)
+        if model_info:  # Vérifier que model_info n'est pas None avant d'utiliser assertIn
+            self.assertIn("name", model_info)
+            self.assertIn("description", model_info)
         
         # Test avec modèle inexistant
         model_info = generator.get_model_info("modele-inexistant")

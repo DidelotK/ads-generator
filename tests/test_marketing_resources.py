@@ -200,6 +200,7 @@ class TestMarketingConfig(unittest.TestCase):
 class TestMarketingResourcesGeneration(unittest.TestCase):
     """Tests pour la génération de ressources marketing"""
     
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     @patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
     @patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
     @patch('examples.example_marketing_hooks.time.sleep')
@@ -227,6 +228,7 @@ class TestMarketingResourcesGeneration(unittest.TestCase):
             image_paths = [str(img) if hasattr(img, '__str__') else img for img in images]
             assert isinstance(image_paths, list)
 
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     @patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
     @patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
     @patch('examples.example_marketing_hooks.time.sleep')
@@ -255,6 +257,7 @@ class TestMarketingResourcesGeneration(unittest.TestCase):
                 self.assertIn('subject', resource)
                 self.assertIn('style', resource)
 
+    @patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
     @patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
     @patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
     @patch('examples.example_marketing_hooks.time.sleep')
@@ -322,6 +325,7 @@ def main():
         print("⚠️  Certains tests ont échoué")
 
 # Fonctions de test compatibles avec l'ancien format
+@patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
 @patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
 @patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
 @patch('examples.example_marketing_hooks.time.sleep')
@@ -349,6 +353,7 @@ def test_marketing_resources(mock_sleep, mock_generate_image, mock_generate_hook
         image_paths = [str(img) if hasattr(img, '__str__') else img for img in images]
         assert isinstance(image_paths, list)
 
+@patch.dict(os.environ, {'OPENAI_API_KEY': 'test_key'})
 @patch('examples.example_marketing_hooks.HookGenerator.generate_hooks_simple')
 @patch('examples.example_marketing_hooks.ImageGenerator.generate_image')
 @patch('examples.example_marketing_hooks.time.sleep')
